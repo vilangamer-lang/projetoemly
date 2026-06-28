@@ -9,6 +9,9 @@ const fullDateFormatter = new Intl.DateTimeFormat("pt-BR", {
   month: "short"
 });
 
+const API_ENDPOINT = "/api/patient";
+const REQUEST_TIMEOUT_MS = 8000;
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replace(/&/g, "&amp;")
@@ -24,6 +27,7 @@ function normalizeKey(value) {
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, " ");
 }
 
@@ -82,7 +86,7 @@ function formatFullDate(date) {
 function createProfile(rawValue, { demo = false } = {}) {
   const displayName = titleCaseName(rawValue) || "Paciente";
   const firstName = getFirstName(displayName);
-  const code = buildPatientCode(displayName);
+  const code = demo ? "DEMO" : buildPatientCode(displayName);
   const initials = getInitials(displayName);
   const today = new Date();
   const nextVisit = addDays(today, 7);
@@ -223,6 +227,67 @@ const emptyProfile = {
   ]
 };
 
+function createNotFoundProfile(rawValue) {
+  const searched = titleCaseName(rawValue) || "registro informado";
+
+  return {
+    name: "Nenhuma ficha encontrada",
+    initials: "NF",
+    greeting: "Nenhuma ficha encontrada",
+    status: "Nenhuma ficha encontrada",
+    code: "",
+    subtitle: `Busca por ${searched}`,
+    access: "Confirme o nome ou o código",
+    nextSession: "Sem agenda",
+    lastReview: "Sem histórico",
+    focus: "A busca não encontrou um registro correspondente no banco conectado.",
+    appointments: [
+      {
+        date: "Sem resultado",
+        time: "--:--",
+        title: "Agenda vazia",
+        detail: "Confirme o nome completo ou o código informado.",
+        status: "Pendente"
+      }
+    ],
+    visits: [
+      {
+        date: "Sem resultado",
+        title: "Histórico indisponível",
+        detail: "Nenhum registro correspondente foi localizado.",
+        status: "Pendente"
+      }
+    ],
+    procedures: [
+      {
+        date: "Sem resultado",
+        title: "Procedimentos indisponíveis",
+        detail: "Nenhum procedimento foi vinculado a essa busca.",
+        status: "Pendente"
+      }
+    ],
+    notes: [
+      "Confirme se o nome está escrito como foi cadastrado.",
+      "Se o código veio do QR, verifique se ele foi colado completo.",
+      "Se o registro existir, ele precisa estar publicado no Supabase."
+    ],
+    contact: [
+      { label: "Canal", value: "WhatsApp oficial da clínica" },
+      { label: "Cidade", value: "Itajaí - SC" },
+      { label: "Suporte", value: "Equipe do Club do Botox" }
+    ]
+  };
+}
+
+function createOfflineProfile(rawValue) {
+  const profile = createProfile(rawValue);
+  return {
+    ...profile,
+    status: "Visualização local",
+    focus: "O backend ainda não respondeu; esta é uma visualização local."
+  };
+}
+
 function setYear() {
   document.querySelectorAll("[data-year], [data-current-year]").forEach((node) => {
     node.textContent = String(new Date().getFullYear());
@@ -231,7 +296,8 @@ function setYear() {
 
 function renderList(container, items, renderer) {
   if (!container) return;
-  container.innerHTML = items.map(renderer).join("");
+  const safeItems = Array.isArray(items) ? items : [];
+  container.innerHTML = safeItems.map(renderer).join("");
 }
 
 function renderProfile(profile) {
@@ -340,43 +406,19 @@ function setupAccessForm() {
     params.get("id") ||
     params.get("paciente");
 
-  const load = (code) => {
-    const raw = String(code || "").trim();
-    const normalized = normalizeKey(raw);
-    let profile = null;
+  let requestId = 0;
 
-    if (!raw) {
-      profile = emptyProfile;
-    } else if (normalized === "demo") {
-      profile = demoProfile;
-    } else {
-      profile = createProfile(raw);
-    }
-
-    renderProfile(profile);
-
+  const setStatusChip = (text) => {
     if (statusChip) {
-      statusChip.textContent = raw ? profile.status : emptyProfile.status;
+      statusChip.textContent = text;
     }
+  };
 
-    if (emptyState) {
-      emptyState.classList.toggle("hidden", Boolean(raw));
-    }
-
-    try {
-      if (raw) {
-        localStorage.setItem("club-do-botox-identity", raw);
-      } else {
-        localStorage.removeItem("club-do-botox-identity");
-      }
-    } catch {
-      /* noop */
-    }
-
+  const syncUrl = (rawValue) => {
     try {
       const url = new URL(window.location.href);
-      if (raw) {
-        url.searchParams.set("name", raw);
+      if (rawValue) {
+        url.searchParams.set("name", rawValue);
       } else {
         url.searchParams.delete("name");
       }
@@ -386,9 +428,109 @@ function setupAccessForm() {
     }
   };
 
+  const renderAndPersist = (profile, rawValue) => {
+    renderProfile(profile);
+    if (rawValue) {
+      try {
+        localStorage.setItem("club-do-botox-identity", rawValue);
+      } catch {
+        /* noop */
+      }
+    } else {
+      try {
+        localStorage.removeItem("club-do-botox-identity");
+      } catch {
+        /* noop */
+      }
+    }
+  };
+
+  const fetchRemoteProfile = async (rawValue) => {
+    const url = new URL(API_ENDPOINT, window.location.origin);
+    url.searchParams.set("key", rawValue);
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+    try {
+      const response = await fetch(url, {
+        headers: { Accept: "application/json" },
+        signal: controller.signal
+      });
+
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        return { ok: false, status: response.status, payload };
+      }
+
+      return { ok: true, status: response.status, payload };
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  };
+
+  const load = async (code) => {
+    const raw = String(code || "").trim();
+    const normalized = normalizeKey(raw);
+
+    if (!raw) {
+      renderAndPersist(emptyProfile, "");
+      setStatusChip(emptyProfile.status);
+      if (emptyState) {
+        emptyState.classList.remove("hidden");
+      }
+      syncUrl("");
+      return;
+    }
+
+    if (emptyState) {
+      emptyState.classList.add("hidden");
+    }
+
+    const currentRequest = ++requestId;
+    setStatusChip("Consultando o banco");
+
+    try {
+      const result = await fetchRemoteProfile(raw);
+      if (currentRequest !== requestId) return;
+
+      if (result.ok && result.payload?.profile) {
+        const profile = result.payload.profile;
+        renderAndPersist(profile, raw);
+        setStatusChip(profile.status || "Acesso individual carregado");
+        return;
+      }
+
+      if (normalized === "demo") {
+        renderAndPersist(demoProfile, raw);
+        setStatusChip(demoProfile.status);
+        return;
+      }
+
+      if (result.status === 404) {
+        const profile = createNotFoundProfile(raw);
+        renderAndPersist(profile, raw);
+        setStatusChip(profile.status);
+        return;
+      }
+
+      const profile = createOfflineProfile(raw);
+      renderAndPersist(profile, raw);
+      setStatusChip(profile.status);
+    } catch {
+      if (currentRequest !== requestId) return;
+      const profile = createOfflineProfile(raw);
+      renderAndPersist(profile, raw);
+      setStatusChip(profile.status);
+    } finally {
+      syncUrl(raw);
+    }
+  };
+
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    load(input.value);
+    void load(input.value);
   });
 
   const saved = (() => {
@@ -400,7 +542,7 @@ function setupAccessForm() {
   })();
 
   input.value = keyParam || saved || "";
-  load(input.value);
+  void load(input.value);
 }
 
 document.addEventListener("DOMContentLoaded", () => {

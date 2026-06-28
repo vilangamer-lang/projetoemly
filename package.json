@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev": "python3 scripts/dev-server.py",
-    "start": "python3 scripts/dev-server.py"
+    "dev": "node scripts/dev-server.js",
+    "start": "node scripts/dev-server.js"
   }
 }
