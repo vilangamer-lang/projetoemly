@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+set -eu
+
+SELF="$(readlink -f "$0")"
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$SELF")" && pwd)"
+REPO_ROOT="$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)"
+
+for REAL_NPM in /usr/bin/npm /usr/local/bin/npm /snap/bin/npm; do
+  if [ -x "$REAL_NPM" ]; then
+    exec "$REAL_NPM" "$@"
+  fi
+done
+
+if [ "${1:-}" = "run" ] && [ "${2:-}" = "dev" ]; then
+  shift 2
+  exec python3 "$REPO_ROOT/scripts/dev-server.py" "$@"
+fi
+
+cat <<'EOF'
+node/npm não estão instalados neste ambiente.
+Este shim local só suporta: npm run dev
+EOF
+exit 1
