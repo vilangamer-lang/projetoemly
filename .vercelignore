@@ -1,0 +1,5 @@
+*.pdf
+PROMPT-IA.md
+scripts/
+__pycache__/
+*.pyc
