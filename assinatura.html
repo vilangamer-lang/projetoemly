@@ -3,18 +3,18 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Minha assinatura | Club do Botox</title>
+    <title>E-Club | Página do paciente</title>
     <meta
       name="description"
-      content="Painel individual pós-QR do Club do Botox da Dra. Emlyn Dangui. Abra com nome completo ou código para ver agenda, histórico e procedimentos."
+      content="Página individual de paciente do E-Club da Dra. Emlyn Dangui com agenda, histórico, procedimentos e observações."
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
+  <body data-page="patient">
     <div class="page">
       <header class="site-header">
         <div class="container site-header__inner">
-          <a class="brand" href="/" aria-label="Club do Botox da Dra. Emlyn Dangui">
+          <a class="brand" href="/" aria-label="E-Club da Dra. Emlyn Dangui">
             <span class="brand__mark" aria-hidden="true">
               <svg viewBox="0 0 64 64" width="30" height="30" fill="none">
                 <path d="M14 39c0-12 8.4-23 18-23s18 11 18 23" stroke="#054464" stroke-width="1.6" stroke-linecap="round" />
@@ -25,89 +25,59 @@
               </svg>
             </span>
             <span class="brand__copy">
-              <span class="brand__name">Emlyn Dangui</span>
-              <span class="brand__meta">Painel da paciente</span>
+              <span class="brand__name">E-Club</span>
+              <span class="brand__meta">Dra. Emlyn Dangui</span>
             </span>
           </a>
+
+          <span class="chip chip--solid" data-access-chip>Acesso individual</span>
         </div>
       </header>
 
       <main>
-        <section class="hero">
+        <div class="container">
+          <div class="page-state hidden" data-page-state></div>
+        </div>
+
+        <section class="hero hero--patient">
           <div class="container hero__grid">
-            <div class="access-shell">
-              <div>
-                <p class="eyebrow">Acesso individual</p>
-                <h1 class="hero__title">Painel da paciente.</h1>
-                <p class="hero__lede">
-                  Cole o nome completo ou o código do QR para abrir quem é, quando volta, o que foi feito e o que
-                  ainda está pendente.
-                </p>
-              </div>
-
-              <form class="access-form" data-access-form>
-                <label for="access-code">Nome completo ou código do paciente</label>
-                <div class="access-row">
-                  <input
-                    id="access-code"
-                    data-access-input
-                    type="text"
-                    placeholder="Ex.: Maria Silva Souza"
-                    autocomplete="name"
-                  />
-                  <button class="button button--solid" type="submit">
-                    <svg class="button__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path
-                        d="M14 10a4 4 0 1 0-1.2 2.8L20 20"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                      <path
-                        d="M18 16h2v2h-2zM15.5 13.5H18v2.5h-2.5z"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    <span>Abrir</span>
-                  </button>
-                </div>
-              </form>
-
-              <div class="empty-state hidden" data-access-empty>
-                <p class="empty-state__title">Cole o nome completo ou código</p>
-                <p class="empty-state__text">A página carrega a ficha individual assim que identifica a paciente.</p>
+            <div>
+              <p class="eyebrow">E-Club</p>
+              <h1 class="hero__title" data-profile-greeting>Bem-vindo à E-Club</h1>
+              <p class="hero__lede" data-profile-focus>Role a tela para baixo para ver mais...</p>
+              <div class="hero__meta">
+                <span class="chip chip--solid" data-profile-status>Acesso individual ativo</span>
+                <span class="chip">Página em português</span>
+                <span class="chip">Conteúdo da clínica</span>
               </div>
             </div>
 
             <aside class="panel panel--deep hero__panel">
-              <span class="chip chip--solid" data-access-chip aria-live="polite">Cole o nome completo ou código</span>
               <div class="identity">
-                <div class="identity__avatar" data-profile-initials>CB</div>
+                <div class="identity__avatar" data-profile-initials>EC</div>
                 <div class="identity__copy">
                   <p class="panel__eyebrow">Identificação</p>
-                  <h2 class="panel__title" data-profile-greeting>Aguardando identificação</h2>
-                  <p class="panel__text" data-profile-fullname>Cole o nome completo ou o código para abrir os dados.</p>
+                  <h2 class="panel__title" data-profile-name>Paciente</h2>
+                  <p class="panel__text" data-profile-fullname>Nome da paciente aparecerá aqui.</p>
                 </div>
               </div>
+
               <div class="patient-meta">
                 <div class="patient-meta__item">
-                  <span class="patient-meta__label">Paciente</span>
-                  <strong class="patient-meta__value" data-profile-name>Digite seu nome completo</strong>
-                </div>
-                <div class="patient-meta__item">
-                  <span class="patient-meta__label">Próxima visita</span>
-                  <strong class="patient-meta__value" data-profile-next>Aguardando entrada</strong>
-                </div>
-                <div class="patient-meta__item">
-                  <span class="patient-meta__label">Última visita</span>
-                  <strong class="patient-meta__value" data-profile-review>Aguardando entrada</strong>
-                </div>
-                <div class="patient-meta__item">
                   <span class="patient-meta__label">Código</span>
-                  <strong class="patient-meta__value" data-profile-access>Após o QR</strong>
+                  <strong class="patient-meta__value" data-profile-access>Sem código</strong>
+                </div>
+                <div class="patient-meta__item">
+                  <span class="patient-meta__label">Próxima consulta</span>
+                  <strong class="patient-meta__value" data-profile-next>Sem agenda</strong>
+                </div>
+                <div class="patient-meta__item">
+                  <span class="patient-meta__label">Última revisão</span>
+                  <strong class="patient-meta__value" data-profile-review>Sem histórico</strong>
+                </div>
+                <div class="patient-meta__item">
+                  <span class="patient-meta__label">Status</span>
+                  <strong class="patient-meta__value" data-profile-status>Em acompanhamento</strong>
                 </div>
               </div>
             </aside>
@@ -120,7 +90,7 @@
               <article class="patient-section">
                 <div class="section__header section__header--tight">
                   <p class="eyebrow">Agenda</p>
-                  <h2 class="section__title">Próximas visitas</h2>
+                  <h2 class="section__title">Próximas consultas</h2>
                 </div>
                 <ul class="record-list" data-profile-appointments></ul>
               </article>
@@ -128,7 +98,7 @@
               <article class="patient-section">
                 <div class="section__header section__header--tight">
                   <p class="eyebrow">Histórico</p>
-                  <h2 class="section__title">Últimas visitas</h2>
+                  <h2 class="section__title">Visitas anteriores</h2>
                 </div>
                 <ul class="record-list" data-profile-history></ul>
               </article>
@@ -138,27 +108,37 @@
               <article class="patient-section">
                 <div class="section__header section__header--tight">
                   <p class="eyebrow">Procedimentos</p>
-                  <h2 class="section__title">O que foi feito</h2>
+                  <h2 class="section__title">O que já foi feito</h2>
                 </div>
                 <ul class="record-list" data-profile-procedures></ul>
               </article>
 
               <article class="patient-section">
                 <div class="section__header section__header--tight">
-                  <p class="eyebrow">Leitura rápida</p>
-                  <h2 class="section__title">Observações</h2>
+                  <p class="eyebrow">Observações</p>
+                  <h2 class="section__title">Leitura rápida</h2>
                 </div>
                 <ul class="note-list" data-profile-notes></ul>
               </article>
             </div>
 
-            <article class="patient-section">
-              <div class="section__header section__header--tight">
-                <p class="eyebrow">Contato</p>
-                <h2 class="section__title">Canal da clínica</h2>
-              </div>
-              <div class="contact-grid" data-profile-contact></div>
-            </article>
+            <div class="dashboard__split">
+              <article class="patient-section">
+                <div class="section__header section__header--tight">
+                  <p class="eyebrow">Links</p>
+                  <h2 class="section__title">Materiais e referências</h2>
+                </div>
+                <div class="contact-grid" data-profile-links></div>
+              </article>
+
+              <article class="patient-section">
+                <div class="section__header section__header--tight">
+                  <p class="eyebrow">Contato</p>
+                  <h2 class="section__title">Canal da clínica</h2>
+                </div>
+                <div class="contact-grid" data-profile-contact></div>
+              </article>
+            </div>
           </div>
         </section>
       </main>
@@ -166,14 +146,15 @@
       <footer class="footer">
         <div class="container footer__inner">
           <div>
-            <strong>Club do Botox · Dra. Emlyn Dangui</strong>
-            <div class="footer__meta">Portal individual · <span data-current-year></span></div>
+            <strong>E-Club · Dra. Emlyn Dangui</strong>
+            <div class="footer__meta">Página individual do paciente · <span data-current-year></span></div>
           </div>
-          <div class="footer__meta">Use o nome completo ou o código do QR para abrir a ficha.</div>
+          <div class="footer__meta">Role a tela para baixo para ver mais...</div>
         </div>
       </footer>
     </div>
 
+    <script src="shared.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

@@ -1,551 +1,141 @@
-const shortDateFormatter = new Intl.DateTimeFormat("pt-BR", {
-  day: "2-digit",
-  month: "short"
-});
-
-const fullDateFormatter = new Intl.DateTimeFormat("pt-BR", {
-  weekday: "short",
-  day: "2-digit",
-  month: "short"
-});
-
-const API_ENDPOINT = "/api/patient";
-const REQUEST_TIMEOUT_MS = 8000;
-
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-function normalizeKey(value) {
-  return String(value || "")
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, " ");
-}
-
-function titleCaseName(value) {
-  return String(value || "")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-    .join(" ");
-}
-
-function getFirstName(value) {
-  const cleaned = String(value || "").trim();
-  if (!cleaned) return "Paciente";
-  return titleCaseName(cleaned).split(" ")[0];
-}
-
-function getInitials(value) {
-  const parts = String(value || "")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
-
-  if (!parts.length) return "CB";
-
-  return parts
-    .slice(0, 2)
-    .map((part) => part.charAt(0).toUpperCase())
-    .join("");
-}
-
-function buildPatientCode(value) {
-  const cleaned = normalizeKey(value).replace(/[^a-z0-9]/g, "");
-  const prefix = (cleaned.slice(0, 3) || "cb").toUpperCase();
-  const suffix = String(cleaned.length || 0).padStart(3, "0");
-  return `${prefix}-${suffix}`;
-}
-
-function addDays(baseDate, days) {
-  const next = new Date(baseDate);
-  next.setDate(next.getDate() + days);
-  return next;
-}
-
-function formatShortDate(date) {
-  const value = shortDateFormatter.format(date).replace(/\./g, "");
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
-function formatFullDate(date) {
-  const value = fullDateFormatter.format(date).replace(/\./g, "");
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
-function createProfile(rawValue, { demo = false } = {}) {
-  const displayName = titleCaseName(rawValue) || "Paciente";
-  const firstName = getFirstName(displayName);
-  const code = demo ? "DEMO" : buildPatientCode(displayName);
-  const initials = getInitials(displayName);
-  const today = new Date();
-  const nextVisit = addDays(today, 7);
-  const followUpVisit = addDays(today, 24);
-  const lastVisit = addDays(today, -9);
-  const previousVisit = addDays(today, -31);
-  const olderVisit = addDays(today, -58);
-
-  return {
-    name: displayName,
-    initials,
-    greeting: demo ? "Visualização de demonstração" : `Olá, ${firstName}.`,
-    status: demo ? "Visualização de demonstração" : "Acesso individual carregado",
-    code,
-    subtitle: `${displayName} · ${code}`,
-    access: "Nome completo ou QR",
-    nextSession: `${formatFullDate(nextVisit)} · 14:30`,
-    lastReview: formatShortDate(lastVisit),
-    focus: demo
-      ? "Estrutura pronta para consulta rápida."
-      : "Seu painel individual está pronto para consulta rápida.",
-    appointments: [
-      {
-        date: formatShortDate(nextVisit),
-        time: "14:30",
-        title: "Retorno clínico",
-        detail: "Revisão da última evolução e alinhamento do próximo passo.",
-        status: "Confirmada"
-      },
-      {
-        date: formatShortDate(followUpVisit),
-        time: "10:00",
-        title: "Acompanhamento",
-        detail: "Leitura do ciclo atual e registro da resposta.",
-        status: "Programada"
-      }
-    ],
-    visits: [
-      {
-        date: formatShortDate(lastVisit),
-        title: "Última visita",
-        detail: "Consulta de retorno com leitura da evolução.",
-        status: "Registrada"
-      },
-      {
-        date: formatShortDate(previousVisit),
-        title: "Visita anterior",
-        detail: "Avaliação inicial e alinhamento do plano.",
-        status: "Registrada"
-      },
-      {
-        date: formatShortDate(olderVisit),
-        title: "Histórico",
-        detail: "Atendimento anterior anexado ao ciclo da paciente.",
-        status: "Arquivada"
-      }
-    ],
-    procedures: [
-      {
-        date: formatShortDate(lastVisit),
-        title: "Revisão facial",
-        detail: "Checagem do que mudou e do que deve ser mantido.",
-        status: "Concluído"
-      },
-      {
-        date: formatShortDate(previousVisit),
-        title: "Planejamento",
-        detail: "Leitura facial, prioridades e sequência de cuidado.",
-        status: "Registrado"
-      },
-      {
-        date: formatShortDate(olderVisit),
-        title: "Acompanhamento",
-        detail: "Registro do contato anterior e observações da equipe.",
-        status: "Arquivado"
-      }
-    ],
-    notes: [
-      "Use o nome completo ou o código do QR para abrir a ficha.",
-      "As visitas aparecem em ordem prática para leitura rápida no celular.",
-      "Dados sensíveis devem continuar protegidos por autenticação no backend."
-    ],
-    contact: [
-      { label: "Canal", value: "WhatsApp oficial da clínica" },
-      { label: "Cidade", value: "Itajaí - SC" },
-      { label: "Suporte", value: "Equipe do Club do Botox" }
-    ]
-  };
-}
-
-const demoProfile = createProfile("Assinatura demo", { demo: true });
-
-const emptyProfile = {
-  name: "Digite seu nome completo",
-  initials: "CB",
-  greeting: "Aguardando identificação",
-  status: "Cole o nome completo ou código",
-  code: "",
-  subtitle: "Aguardando identificação",
-  access: "Após o QR",
-  nextSession: "Aguardando entrada",
-  lastReview: "Aguardando entrada",
-  focus: "Cole o nome completo ou o código para abrir a ficha da paciente.",
-  appointments: [
-    {
-      date: "Aguardando",
-      time: "--:--",
-      title: "Próxima visita",
-      detail: "A agenda aparece depois da identificação.",
-      status: "Pendente"
-    }
-  ],
-  visits: [
-    {
-      date: "Aguardando",
-      title: "Última visita",
-      detail: "O histórico aparece depois da identificação.",
-      status: "Pendente"
-    }
-  ],
-  procedures: [
-    {
-      date: "Aguardando",
-      title: "Procedimentos",
-      detail: "O que foi feito fica listado aqui.",
-      status: "Pendente"
-    }
-  ],
-  notes: [
-    "Cole o nome completo ou o código do QR para carregar a ficha.",
-    "A página se ajusta para celular e computador.",
-    "O acesso pode ser integrado depois com banco de dados."
-  ],
-  contact: [
-    { label: "Canal", value: "Mensagem oficial da clínica" },
-    { label: "Cidade", value: "Itajaí - SC" },
-    { label: "Suporte", value: "Equipe do Club do Botox" }
-  ]
-};
-
-function createNotFoundProfile(rawValue) {
-  const searched = titleCaseName(rawValue) || "registro informado";
-
-  return {
-    name: "Nenhuma ficha encontrada",
-    initials: "NF",
-    greeting: "Nenhuma ficha encontrada",
-    status: "Nenhuma ficha encontrada",
-    code: "",
-    subtitle: `Busca por ${searched}`,
-    access: "Confirme o nome ou o código",
-    nextSession: "Sem agenda",
-    lastReview: "Sem histórico",
-    focus: "A busca não encontrou um registro correspondente no banco conectado.",
-    appointments: [
-      {
-        date: "Sem resultado",
-        time: "--:--",
-        title: "Agenda vazia",
-        detail: "Confirme o nome completo ou o código informado.",
-        status: "Pendente"
-      }
-    ],
-    visits: [
-      {
-        date: "Sem resultado",
-        title: "Histórico indisponível",
-        detail: "Nenhum registro correspondente foi localizado.",
-        status: "Pendente"
-      }
-    ],
-    procedures: [
-      {
-        date: "Sem resultado",
-        title: "Procedimentos indisponíveis",
-        detail: "Nenhum procedimento foi vinculado a essa busca.",
-        status: "Pendente"
-      }
-    ],
-    notes: [
-      "Confirme se o nome está escrito como foi cadastrado.",
-      "Se o código veio do QR, verifique se ele foi colado completo.",
-      "Se o registro existir, ele precisa estar publicado no Supabase."
-    ],
-    contact: [
-      { label: "Canal", value: "WhatsApp oficial da clínica" },
-      { label: "Cidade", value: "Itajaí - SC" },
-      { label: "Suporte", value: "Equipe do Club do Botox" }
-    ]
-  };
-}
-
-function createOfflineProfile(rawValue) {
-  const profile = createProfile(rawValue);
-  return {
-    ...profile,
-    status: "Visualização local",
-    focus: "O backend ainda não respondeu; esta é uma visualização local."
-  };
-}
-
 function setYear() {
   document.querySelectorAll("[data-year], [data-current-year]").forEach((node) => {
     node.textContent = String(new Date().getFullYear());
   });
 }
 
-function renderList(container, items, renderer) {
-  if (!container) return;
-  const safeItems = Array.isArray(items) ? items : [];
-  container.innerHTML = safeItems.map(renderer).join("");
-}
-
-function renderProfile(profile) {
-  const nameEl = document.querySelector("[data-profile-name]");
-  const greetingEl = document.querySelector("[data-profile-greeting]");
-  const initialsEl = document.querySelector("[data-profile-initials]");
-  const subtitleEl = document.querySelector("[data-profile-fullname]");
-  const accessEl = document.querySelector("[data-profile-access]");
-  const nextEl = document.querySelector("[data-profile-next]");
-  const reviewEl = document.querySelector("[data-profile-review]");
-  const focusEl = document.querySelector("[data-profile-focus]");
-  const appointmentsEl = document.querySelector("[data-profile-appointments]");
-  const historyEl = document.querySelector("[data-profile-history]");
-  const proceduresEl = document.querySelector("[data-profile-procedures]");
-  const notesEl = document.querySelector("[data-profile-notes]");
-  const contactEl = document.querySelector("[data-profile-contact]");
-
-  if (nameEl) nameEl.textContent = profile.name;
-  if (greetingEl) greetingEl.textContent = profile.greeting || profile.name;
-  if (initialsEl) initialsEl.textContent = profile.initials || getInitials(profile.name);
-  if (subtitleEl) subtitleEl.textContent = profile.subtitle || profile.name;
-  if (accessEl) accessEl.textContent = profile.code || profile.access || "";
-  if (nextEl) nextEl.textContent = profile.nextSession || "";
-  if (reviewEl) reviewEl.textContent = profile.lastReview || "";
-  if (focusEl) focusEl.textContent = profile.focus || "";
-
-  renderList(
-    appointmentsEl,
-    profile.appointments,
-    (item) => `
-      <li class="record">
-        <div class="record__meta">
-          <span class="record__date">${escapeHtml(item.date)}</span>
-          <span class="record__time">${escapeHtml(item.time)}</span>
-        </div>
-        <div class="record__body">
-          <p class="record__title">${escapeHtml(item.title)}</p>
-          <p class="record__text">${escapeHtml(item.detail)}</p>
-        </div>
-        <span class="record__tag">${escapeHtml(item.status)}</span>
-      </li>`
-  );
-
-  renderList(
-    historyEl,
-    profile.visits,
-    (item) => `
-      <li class="record">
-        <div class="record__meta">
-          <span class="record__date">${escapeHtml(item.date)}</span>
-        </div>
-        <div class="record__body">
-          <p class="record__title">${escapeHtml(item.title)}</p>
-          <p class="record__text">${escapeHtml(item.detail)}</p>
-        </div>
-        <span class="record__tag">${escapeHtml(item.status)}</span>
-      </li>`
-  );
-
-  renderList(
-    proceduresEl,
-    profile.procedures,
-    (item) => `
-      <li class="record">
-        <div class="record__meta">
-          <span class="record__date">${escapeHtml(item.date)}</span>
-        </div>
-        <div class="record__body">
-          <p class="record__title">${escapeHtml(item.title)}</p>
-          <p class="record__text">${escapeHtml(item.detail)}</p>
-        </div>
-        <span class="record__tag">${escapeHtml(item.status)}</span>
-      </li>`
-  );
-
-  renderList(
-    notesEl,
-    profile.notes,
-    (item) => `
-      <li class="note-list__item">${escapeHtml(item)}</li>`
-  );
-
-  renderList(
-    contactEl,
-    profile.contact,
-    (item) => `
-      <article class="contact-item">
-        <p class="contact-item__label">${escapeHtml(item.label)}</p>
-        <p class="contact-item__value">${escapeHtml(item.value)}</p>
-      </article>`
-  );
-}
-
-function setupAccessForm() {
-  const form = document.querySelector("[data-access-form]");
-  if (!form) return;
-
-  const input = form.querySelector("[data-access-input]");
-  const statusChip = document.querySelector("[data-access-chip]");
-  const emptyState = document.querySelector("[data-access-empty]");
+function readLookupKey() {
   const params = new URLSearchParams(window.location.search);
-  const keyParam =
-    params.get("name") ||
-    params.get("nome") ||
-    params.get("code") ||
-    params.get("id") ||
-    params.get("paciente");
+  const candidates = [
+    params.get("slug"),
+    params.get("key"),
+    params.get("name"),
+    params.get("code"),
+    params.get("id"),
+    params.get("paciente")
+  ].filter(Boolean);
 
-  let requestId = 0;
+  if (candidates.length) {
+    return candidates[0];
+  }
 
-  const setStatusChip = (text) => {
-    if (statusChip) {
-      statusChip.textContent = text;
+  const pathParts = window.location.pathname.split("/").filter(Boolean);
+  if (!pathParts.length) return "";
+
+  if (["p", "paciente", "assinatura"].includes(pathParts[0])) {
+    return decodeURIComponent(pathParts[1] || "");
+  }
+
+  return decodeURIComponent(pathParts[pathParts.length - 1] || "");
+}
+
+function setBanner(message, tone = "neutral") {
+  const banner = document.querySelector("[data-page-state]");
+  if (!banner) return;
+  banner.textContent = message;
+  banner.dataset.tone = tone;
+  banner.classList.remove("hidden");
+}
+
+function hideBanner() {
+  const banner = document.querySelector("[data-page-state]");
+  if (!banner) return;
+  banner.classList.add("hidden");
+}
+
+async function fetchPatient(lookupKey) {
+  const url = new URL("/api/patient", window.location.origin);
+  url.searchParams.set("slug", lookupKey);
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 10000);
+
+  try {
+    const response = await fetch(url, {
+      headers: { Accept: "application/json" },
+      signal: controller.signal
+    });
+    const payload = await response.json().catch(() => null);
+    return {
+      ok: response.ok,
+      status: response.status,
+      payload
+    };
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
+function applyState(profile) {
+  const data = window.EClub.renderPatientProfile(document, profile, {
+    archived: Boolean(profile?.is_archived)
+  });
+
+  const accessChip = document.querySelector("[data-access-chip]");
+  if (accessChip) {
+    accessChip.textContent = data.status || "Acesso individual";
+  }
+
+  if (data.is_archived) {
+    setBanner("Esta página foi arquivada pela clínica.", "warning");
+  } else {
+    hideBanner();
+  }
+}
+
+async function setupPublicPatientPage() {
+  if (!window.EClub) return;
+
+  setYear();
+
+  const lookupKey = readLookupKey().trim();
+  const titleFallback = document.querySelector("[data-profile-greeting]");
+
+  if (!lookupKey) {
+    const profile = window.EClub.createNotFoundProfile("Acesso não informado");
+    applyState(profile);
+    if (titleFallback) {
+      titleFallback.textContent = profile.greeting;
     }
-  };
+    setBanner("Informe um link válido da paciente.", "danger");
+    return;
+  }
 
-  const syncUrl = (rawValue) => {
-    try {
-      const url = new URL(window.location.href);
-      if (rawValue) {
-        url.searchParams.set("name", rawValue);
-      } else {
-        url.searchParams.delete("name");
-      }
-      history.replaceState({}, "", url.toString());
-    } catch {
-      /* noop */
-    }
-  };
+  if (lookupKey.toLowerCase() === "demo") {
+    const profile = window.EClub.createDefaultProfile("Assinatura demo", { demo: true });
+    applyState(profile);
+    return;
+  }
 
-  const renderAndPersist = (profile, rawValue) => {
-    renderProfile(profile);
-    if (rawValue) {
-      try {
-        localStorage.setItem("club-do-botox-identity", rawValue);
-      } catch {
-        /* noop */
-      }
-    } else {
-      try {
-        localStorage.removeItem("club-do-botox-identity");
-      } catch {
-        /* noop */
-      }
-    }
-  };
+  setBanner("Carregando a página da paciente...", "neutral");
 
-  const fetchRemoteProfile = async (rawValue) => {
-    const url = new URL(API_ENDPOINT, window.location.origin);
-    url.searchParams.set("key", rawValue);
-
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
-
-    try {
-      const response = await fetch(url, {
-        headers: { Accept: "application/json" },
-        signal: controller.signal
-      });
-
-      const payload = await response.json().catch(() => null);
-
-      if (!response.ok) {
-        return { ok: false, status: response.status, payload };
-      }
-
-      return { ok: true, status: response.status, payload };
-    } finally {
-      window.clearTimeout(timeout);
-    }
-  };
-
-  const load = async (code) => {
-    const raw = String(code || "").trim();
-    const normalized = normalizeKey(raw);
-
-    if (!raw) {
-      renderAndPersist(emptyProfile, "");
-      setStatusChip(emptyProfile.status);
-      if (emptyState) {
-        emptyState.classList.remove("hidden");
-      }
-      syncUrl("");
+  try {
+    const result = await fetchPatient(lookupKey);
+    if (result.ok && result.payload?.profile) {
+      const profile = {
+        ...result.payload.profile,
+        is_archived: Boolean(result.payload.patient?.is_archived)
+      };
+      applyState(profile);
       return;
     }
 
-    if (emptyState) {
-      emptyState.classList.add("hidden");
+    if (result.status === 404) {
+      const profile = window.EClub.createNotFoundProfile(lookupKey);
+      applyState(profile);
+      setBanner("Nenhuma página foi encontrada para este link.", "warning");
+      return;
     }
 
-    const currentRequest = ++requestId;
-    setStatusChip("Consultando o banco");
-
-    try {
-      const result = await fetchRemoteProfile(raw);
-      if (currentRequest !== requestId) return;
-
-      if (result.ok && result.payload?.profile) {
-        const profile = result.payload.profile;
-        renderAndPersist(profile, raw);
-        setStatusChip(profile.status || "Acesso individual carregado");
-        return;
-      }
-
-      if (normalized === "demo") {
-        renderAndPersist(demoProfile, raw);
-        setStatusChip(demoProfile.status);
-        return;
-      }
-
-      if (result.status === 404) {
-        const profile = createNotFoundProfile(raw);
-        renderAndPersist(profile, raw);
-        setStatusChip(profile.status);
-        return;
-      }
-
-      const profile = createOfflineProfile(raw);
-      renderAndPersist(profile, raw);
-      setStatusChip(profile.status);
-    } catch {
-      if (currentRequest !== requestId) return;
-      const profile = createOfflineProfile(raw);
-      renderAndPersist(profile, raw);
-      setStatusChip(profile.status);
-    } finally {
-      syncUrl(raw);
-    }
-  };
-
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    void load(input.value);
-  });
-
-  const saved = (() => {
-    try {
-      return localStorage.getItem("club-do-botox-identity");
-    } catch {
-      return null;
-    }
-  })();
-
-  input.value = keyParam || saved || "";
-  void load(input.value);
+    const profile = window.EClub.createNotFoundProfile(lookupKey);
+    applyState(profile);
+    setBanner("O banco ainda não respondeu. Verifique a conexão.", "warning");
+  } catch {
+    const profile = window.EClub.createNotFoundProfile(lookupKey);
+    applyState(profile);
+    setBanner("A página não pôde ser carregada agora.", "danger");
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  setYear();
-  setupAccessForm();
+  void setupPublicPatientPage();
 });

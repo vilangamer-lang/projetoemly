@@ -7,7 +7,11 @@ Set these Vercel environment variables:
 - `SUPABASE_URL`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `SUPABASE_TABLE` if you want a different table name
+- `ADMIN_PASSWORD`
+- `ADMIN_SESSION_SECRET`
 
-The frontend calls `/api/patient?key=...`, and the Vercel function reads the matching patient record from Supabase using the service role key.
+The frontend calls `/api/patient?slug=...`, and the Vercel function reads the matching patient record from Supabase using the service role key.
 
 The SQL file also enables RLS and grants the `service_role` role access to read the table, which is required for the server-side API route.
+
+The admin panel sits at `/` and uses the password/session pair above to protect the create/edit flow.

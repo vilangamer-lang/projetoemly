@@ -18,13 +18,18 @@ $$;
 
 create table if not exists public.patient_portal (
   id uuid primary key default gen_random_uuid(),
+  slug text not null unique,
   access_code text not null unique,
   full_name text not null,
   full_name_search text not null,
+  is_archived boolean not null default false,
   profile jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+create unique index if not exists patient_portal_slug_idx
+  on public.patient_portal (slug);
 
 create index if not exists patient_portal_full_name_search_idx
   on public.patient_portal (full_name_search);
@@ -33,13 +38,14 @@ create index if not exists patient_portal_access_code_idx
   on public.patient_portal (access_code);
 
 grant usage on schema public to service_role;
-grant select on table public.patient_portal to service_role;
+grant select, insert, update, delete on table public.patient_portal to service_role;
 
 create or replace function public.sync_patient_portal_search_columns()
 returns trigger
 language plpgsql
 as $$
 begin
+  new.slug := public.normalize_search_text(coalesce(new.slug, new.full_name));
   new.access_code := public.normalize_search_text(new.access_code);
   new.full_name_search := public.normalize_search_text(new.full_name);
   new.updated_at := now();
@@ -54,21 +60,22 @@ for each row execute function public.sync_patient_portal_search_columns();
 
 alter table public.patient_portal enable row level security;
 
-insert into public.patient_portal (access_code, full_name, profile)
+insert into public.patient_portal (slug, access_code, full_name, profile)
 values (
+  'demo',
   'demo',
   'Assinatura demo',
   $${
     "name": "Assinatura demo",
     "initials": "ED",
-    "greeting": "Visualização de demonstração",
-    "status": "Visualização de demonstração",
+    "greeting": "Bem-vindo à E-Club, Assinatura demo",
+    "status": "Página de demonstração",
     "code": "DEMO",
-    "subtitle": "Assinatura demo",
+    "subtitle": "Página de demonstração",
     "access": "Nome completo ou QR",
     "nextSession": "seg., 12 mai · 14:30",
     "lastReview": "03 mai",
-    "focus": "Estrutura pronta para consulta rápida.",
+    "focus": "Role a tela para baixo para ver mais...",
     "appointments": [
       {
         "date": "12 mai",
@@ -137,8 +144,9 @@ values (
     ]
   }$$::jsonb
 )
-on conflict (access_code) do update
+on conflict (slug) do update
 set
+  access_code = excluded.access_code,
   full_name = excluded.full_name,
   profile = excluded.profile,
   updated_at = now();

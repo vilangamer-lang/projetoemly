@@ -3,18 +3,18 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Painel da paciente | Club do Botox</title>
+    <title>Painel da Dra. Emlyn Dangui | E-Club</title>
     <meta
       name="description"
-      content="Painel individual pós-QR do Club do Botox da Dra. Emlyn Dangui. Abra com nome completo ou código para ver agenda, histórico e procedimentos."
+      content="Painel restrito da Dra. Emlyn Dangui para criar, editar e compartilhar páginas individuais de pacientes no E-Club."
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
+  <body data-page="admin">
     <div class="page">
       <header class="site-header">
         <div class="container site-header__inner">
-          <a class="brand" href="/" aria-label="Club do Botox da Dra. Emlyn Dangui">
+          <a class="brand" href="/" aria-label="E-Club da Dra. Emlyn Dangui">
             <span class="brand__mark" aria-hidden="true">
               <svg viewBox="0 0 64 64" width="30" height="30" fill="none">
                 <path d="M14 39c0-12 8.4-23 18-23s18 11 18 23" stroke="#054464" stroke-width="1.6" stroke-linecap="round" />
@@ -25,140 +25,357 @@
               </svg>
             </span>
             <span class="brand__copy">
-              <span class="brand__name">Emlyn Dangui</span>
-              <span class="brand__meta">Painel da paciente</span>
+              <span class="brand__name">Dra. Emlyn Dangui</span>
+              <span class="brand__meta">Painel restrito do E-Club</span>
             </span>
           </a>
+
+          <div class="topbar-actions">
+            <span class="chip chip--solid" data-session-chip>Sem sessão ativa</span>
+            <button class="button button--ghost hidden" type="button" data-logout-button>Sair</button>
+          </div>
         </div>
       </header>
 
       <main>
-        <section class="hero">
-          <div class="container hero__grid">
-            <div class="access-shell">
-              <div>
-                <p class="eyebrow">Acesso individual</p>
-                <h1 class="hero__title">Painel da paciente.</h1>
-                <p class="hero__lede">
-                  Cole o nome completo ou o código do QR para abrir quem é, quando volta, o que foi feito e o que
-                  ainda está pendente.
-                </p>
-              </div>
-
-              <form class="access-form" data-access-form>
-                <label for="access-code">Nome completo ou código do paciente</label>
-                <div class="access-row">
-                  <input
-                    id="access-code"
-                    data-access-input
-                    type="text"
-                    placeholder="Ex.: Maria Silva Souza"
-                    autocomplete="name"
-                  />
-                  <button class="button button--solid" type="submit">
-                    <svg class="button__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path
-                        d="M14 10a4 4 0 1 0-1.2 2.8L20 20"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                      <path
-                        d="M18 16h2v2h-2zM15.5 13.5H18v2.5h-2.5z"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    <span>Abrir</span>
-                  </button>
-                </div>
-              </form>
-
-              <div class="empty-state hidden" data-access-empty>
-                <p class="empty-state__title">Cole o nome completo ou código</p>
-                <p class="empty-state__text">A página carrega a ficha individual assim que identifica a paciente.</p>
+        <section class="hero hero--admin">
+          <div class="container hero__grid admin-hero">
+            <div>
+              <p class="eyebrow">Acesso restrito</p>
+              <h1 class="hero__title">Portal da Dra. Emlyn Dangui.</h1>
+              <p class="hero__lede">
+                Crie, edite e compartilhe páginas individuais para cada paciente. Cada registro fica com link próprio,
+                pronto para abrir no celular ou no computador.
+              </p>
+              <div class="hero__meta">
+                <span class="chip">Criação rápida</span>
+                <span class="chip">Edição posterior</span>
+                <span class="chip">Link público por paciente</span>
               </div>
             </div>
 
             <aside class="panel panel--deep hero__panel">
-              <span class="chip chip--solid" data-access-chip aria-live="polite">Cole o nome completo ou código</span>
-              <div class="identity">
-                <div class="identity__avatar" data-profile-initials>CB</div>
-                <div class="identity__copy">
-                  <p class="panel__eyebrow">Identificação</p>
-                  <h2 class="panel__title" data-profile-greeting>Aguardando identificação</h2>
-                  <p class="panel__text" data-profile-fullname>Cole o nome completo ou o código para abrir os dados.</p>
+              <div data-login-panel>
+                <span class="chip chip--solid">Acesso da Dra. Emlyn</span>
+                <div class="identity">
+                  <div class="identity__avatar">ED</div>
+                  <div class="identity__copy">
+                    <p class="panel__eyebrow">Entrada segura</p>
+                    <h2 class="panel__title">Entre para gerenciar os pacientes.</h2>
+                    <p class="panel__text">Use a senha definida no ambiente da Vercel para abrir o painel.</p>
+                  </div>
                 </div>
+
+                <form class="access-form" data-login-form>
+                  <label for="admin-password">Senha da Dra. Emlyn</label>
+                  <div class="access-row">
+                    <input
+                      id="admin-password"
+                      data-login-password
+                      type="password"
+                      placeholder="Digite a senha"
+                      autocomplete="current-password"
+                    />
+                    <button class="button button--solid" type="submit">Entrar</button>
+                  </div>
+                </form>
               </div>
-              <div class="patient-meta">
-                <div class="patient-meta__item">
-                  <span class="patient-meta__label">Paciente</span>
-                  <strong class="patient-meta__value" data-profile-name>Digite seu nome completo</strong>
+
+              <div data-session-panel class="hidden">
+                <span class="chip chip--solid">Sessão ativa</span>
+                <div class="identity">
+                  <div class="identity__avatar">ED</div>
+                  <div class="identity__copy">
+                    <p class="panel__eyebrow">Painel liberado</p>
+                    <h2 class="panel__title">Cadastro, edição e links prontos para uso.</h2>
+                    <p class="panel__text">O painel já está conectado ao Supabase e pode salvar novos pacientes.</p>
+                  </div>
                 </div>
-                <div class="patient-meta__item">
-                  <span class="patient-meta__label">Próxima visita</span>
-                  <strong class="patient-meta__value" data-profile-next>Aguardando entrada</strong>
-                </div>
-                <div class="patient-meta__item">
-                  <span class="patient-meta__label">Última visita</span>
-                  <strong class="patient-meta__value" data-profile-review>Aguardando entrada</strong>
-                </div>
-                <div class="patient-meta__item">
-                  <span class="patient-meta__label">Código</span>
-                  <strong class="patient-meta__value" data-profile-access>Após o QR</strong>
+                <div class="admin-stats">
+                  <div class="stat">
+                    <p class="stat__value" data-admin-total>0</p>
+                    <p class="stat__label">Pacientes cadastrados</p>
+                  </div>
+                  <div class="stat">
+                    <p class="stat__value" data-admin-active>0</p>
+                    <p class="stat__label">Páginas ativas</p>
+                  </div>
+                  <div class="stat">
+                    <p class="stat__value" data-admin-archived>0</p>
+                    <p class="stat__label">Arquivadas</p>
+                  </div>
                 </div>
               </div>
             </aside>
           </div>
         </section>
 
-        <section class="section section--deep">
-          <div class="container dashboard">
-            <div class="dashboard__split">
-              <article class="patient-section">
-                <div class="section__header section__header--tight">
-                  <p class="eyebrow">Agenda</p>
-                  <h2 class="section__title">Próximas visitas</h2>
-                </div>
-                <ul class="record-list" data-profile-appointments></ul>
-              </article>
-
-              <article class="patient-section">
-                <div class="section__header section__header--tight">
-                  <p class="eyebrow">Histórico</p>
-                  <h2 class="section__title">Últimas visitas</h2>
-                </div>
-                <ul class="record-list" data-profile-history></ul>
-              </article>
-            </div>
-
-            <div class="dashboard__split">
-              <article class="patient-section">
-                <div class="section__header section__header--tight">
-                  <p class="eyebrow">Procedimentos</p>
-                  <h2 class="section__title">O que foi feito</h2>
-                </div>
-                <ul class="record-list" data-profile-procedures></ul>
-              </article>
-
-              <article class="patient-section">
-                <div class="section__header section__header--tight">
-                  <p class="eyebrow">Leitura rápida</p>
-                  <h2 class="section__title">Observações</h2>
-                </div>
-                <ul class="note-list" data-profile-notes></ul>
-              </article>
-            </div>
-
-            <article class="patient-section">
+        <section class="section section--deep hidden" data-workspace>
+          <div class="container admin-layout">
+            <aside class="admin-sidebar">
               <div class="section__header section__header--tight">
-                <p class="eyebrow">Contato</p>
-                <h2 class="section__title">Canal da clínica</h2>
+                <p class="eyebrow">Pacientes</p>
+                <h2 class="section__title">Lista e filtros</h2>
               </div>
-              <div class="contact-grid" data-profile-contact></div>
-            </article>
+
+              <div class="stack">
+                <label class="field">
+                  <span>Buscar paciente</span>
+                  <input type="search" data-patient-search placeholder="Nome, slug ou código" />
+                </label>
+
+                <div class="filter-group" role="tablist" aria-label="Filtrar pacientes">
+                  <button class="tabs__button" type="button" data-filter-status="all" aria-selected="true">Todos</button>
+                  <button class="tabs__button" type="button" data-filter-status="active" aria-selected="false">Ativas</button>
+                  <button class="tabs__button" type="button" data-filter-status="archived" aria-selected="false">Arquivadas</button>
+                </div>
+
+                <button class="button button--solid" type="button" data-create-patient>
+                  Nova página de paciente
+                </button>
+
+                <div class="patient-list" data-patient-list></div>
+              </div>
+            </aside>
+
+            <section class="admin-main">
+              <article class="editor-shell">
+                <div class="editor-toolbar">
+                  <div>
+                    <p class="eyebrow">Editor</p>
+                    <h2 class="section__title" data-current-patient>Tela pronta para criar uma nova página</h2>
+                  </div>
+                  <div class="toolbar-actions">
+                    <button class="button" type="button" data-copy-link>Copiar link</button>
+                    <button class="button" type="button" data-open-link>Abrir página</button>
+                  </div>
+                </div>
+
+                <form class="editor-form" data-patient-form>
+                  <div class="form-grid">
+                    <label class="field">
+                      <span>Nome completo do paciente</span>
+                      <input type="text" data-field="full_name" placeholder="Ex.: Maria Silva Souza" />
+                    </label>
+                    <label class="field">
+                      <span>Slug público</span>
+                      <input type="text" data-field="slug" placeholder="Ex.: maria-silva-souza" />
+                    </label>
+                    <label class="field">
+                      <span>Código do acesso</span>
+                      <input type="text" data-field="access_code" placeholder="Ex.: mar-012" />
+                    </label>
+                    <label class="field">
+                      <span>Status</span>
+                      <select data-field="status">
+                        <option value="Acesso individual ativo">Ativa</option>
+                        <option value="Página arquivada">Arquivada</option>
+                        <option value="Em revisão">Em revisão</option>
+                        <option value="Aguardando atendimento">Aguardando atendimento</option>
+                      </select>
+                    </label>
+                    <label class="field">
+                      <span>Frase de abertura</span>
+                      <input type="text" data-field="greeting" />
+                    </label>
+                    <label class="field">
+                      <span>Título secundário</span>
+                      <input type="text" data-field="subtitle" />
+                    </label>
+                    <label class="field field--full">
+                      <span>Texto de orientação</span>
+                      <textarea rows="3" data-field="focus"></textarea>
+                    </label>
+                    <label class="field">
+                      <span>Próxima consulta</span>
+                      <input type="text" data-field="nextSession" placeholder="Ex.: Seg., 12 mai · 14:30" />
+                    </label>
+                    <label class="field">
+                      <span>Última revisão</span>
+                      <input type="text" data-field="lastReview" placeholder="Ex.: 03 mai" />
+                    </label>
+                  </div>
+
+                  <section class="form-section">
+                    <div class="form-section__head">
+                      <div>
+                        <p class="feature__kicker">Agenda</p>
+                        <h3>Próximas consultas</h3>
+                      </div>
+                      <button class="button" type="button" data-add-row="appointments">Adicionar linha</button>
+                    </div>
+                    <div class="repeater" data-repeater="appointments"></div>
+                  </section>
+
+                  <section class="form-section">
+                    <div class="form-section__head">
+                      <div>
+                        <p class="feature__kicker">Histórico</p>
+                        <h3>Visitas anteriores</h3>
+                      </div>
+                      <button class="button" type="button" data-add-row="visits">Adicionar linha</button>
+                    </div>
+                    <div class="repeater" data-repeater="visits"></div>
+                  </section>
+
+                  <section class="form-section">
+                    <div class="form-section__head">
+                      <div>
+                        <p class="feature__kicker">Procedimentos</p>
+                        <h3>O que já foi feito</h3>
+                      </div>
+                      <button class="button" type="button" data-add-row="procedures">Adicionar linha</button>
+                    </div>
+                    <div class="repeater" data-repeater="procedures"></div>
+                  </section>
+
+                  <section class="form-section">
+                    <div class="form-section__head">
+                      <div>
+                        <p class="feature__kicker">Contato</p>
+                        <h3>Canal da clínica</h3>
+                      </div>
+                      <button class="button" type="button" data-add-row="contact">Adicionar linha</button>
+                    </div>
+                    <div class="repeater" data-repeater="contact"></div>
+                  </section>
+
+                  <section class="form-section">
+                    <div class="form-section__head">
+                      <div>
+                        <p class="feature__kicker">Links</p>
+                        <h3>Materiais e referências</h3>
+                      </div>
+                      <button class="button" type="button" data-add-row="links">Adicionar linha</button>
+                    </div>
+                    <div class="repeater" data-repeater="links"></div>
+                  </section>
+
+                  <section class="form-section">
+                    <label class="field field--full">
+                      <span>Observações</span>
+                      <textarea rows="4" data-field="notes" placeholder="Uma observação por linha"></textarea>
+                    </label>
+                  </section>
+
+                  <div class="form-actions">
+                    <span class="chip" data-save-state>Pronto para salvar</span>
+                    <div class="toolbar-actions">
+                      <button class="button" type="button" data-duplicate-patient>Duplicar</button>
+                      <button class="button" type="button" data-archive-patient>Arquivar</button>
+                      <button class="button" type="button" data-delete-patient>Excluir</button>
+                      <button class="button button--solid" type="submit">Salvar paciente</button>
+                    </div>
+                  </div>
+                </form>
+              </article>
+
+              <article class="preview-shell">
+                <div class="preview-shell__header">
+                  <div>
+                    <p class="eyebrow">Prévia pública</p>
+                    <h2 class="section__title">Como a paciente vai ver a página</h2>
+                  </div>
+                  <span class="chip chip--solid" data-profile-status>Pré-visualização</span>
+                </div>
+
+                <div class="preview-root" data-preview-root>
+                  <div class="preview-banner hidden" data-profile-banner></div>
+
+                  <div class="preview-hero">
+                    <div>
+                      <p class="eyebrow">E-Club</p>
+                      <h3 class="hero__title" data-profile-greeting>Bem-vindo à E-Club, Paciente</h3>
+                      <p class="hero__lede" data-profile-focus>Role a tela para baixo para ver mais...</p>
+                      <div class="hero__meta">
+                        <span class="chip chip--solid" data-access-chip>Pronta para edição</span>
+                        <span class="chip">Atualização em tempo real</span>
+                      </div>
+                    </div>
+
+                    <aside class="panel panel--deep hero__panel preview-panel">
+                      <div class="identity">
+                        <div class="identity__avatar" data-profile-initials>EC</div>
+                        <div class="identity__copy">
+                          <p class="panel__eyebrow">Identificação</p>
+                          <h4 class="panel__title" data-profile-name>Paciente</h4>
+                          <p class="panel__text" data-profile-fullname>Slug e código aparecerão aqui.</p>
+                        </div>
+                      </div>
+
+                      <div class="patient-meta">
+                        <div class="patient-meta__item">
+                          <span class="patient-meta__label">Código</span>
+                          <strong class="patient-meta__value" data-profile-access>Sem código</strong>
+                        </div>
+                        <div class="patient-meta__item">
+                          <span class="patient-meta__label">Próxima consulta</span>
+                          <strong class="patient-meta__value" data-profile-next>Sem agenda</strong>
+                        </div>
+                        <div class="patient-meta__item">
+                          <span class="patient-meta__label">Última revisão</span>
+                          <strong class="patient-meta__value" data-profile-review>Sem histórico</strong>
+                        </div>
+                        <div class="patient-meta__item">
+                          <span class="patient-meta__label">Status</span>
+                          <strong class="patient-meta__value" data-profile-status>Pronta para edição</strong>
+                        </div>
+                      </div>
+                    </aside>
+                  </div>
+
+                  <div class="preview-sections">
+                    <article class="patient-section">
+                      <div class="section__header section__header--tight">
+                        <p class="eyebrow">Agenda</p>
+                        <h3 class="section__title">Próximas consultas</h3>
+                      </div>
+                      <ul class="record-list" data-profile-appointments></ul>
+                    </article>
+
+                    <article class="patient-section">
+                      <div class="section__header section__header--tight">
+                        <p class="eyebrow">Histórico</p>
+                        <h3 class="section__title">Visitas anteriores</h3>
+                      </div>
+                      <ul class="record-list" data-profile-history></ul>
+                    </article>
+
+                    <article class="patient-section">
+                      <div class="section__header section__header--tight">
+                        <p class="eyebrow">Procedimentos</p>
+                        <h3 class="section__title">O que já foi feito</h3>
+                      </div>
+                      <ul class="record-list" data-profile-procedures></ul>
+                    </article>
+
+                    <article class="patient-section">
+                      <div class="section__header section__header--tight">
+                        <p class="eyebrow">Observações</p>
+                        <h3 class="section__title">Leitura rápida</h3>
+                      </div>
+                      <ul class="note-list" data-profile-notes></ul>
+                    </article>
+
+                    <article class="patient-section">
+                      <div class="section__header section__header--tight">
+                        <p class="eyebrow">Links</p>
+                        <h3 class="section__title">Materiais e referências</h3>
+                      </div>
+                      <div class="contact-grid" data-profile-links></div>
+                    </article>
+
+                    <article class="patient-section">
+                      <div class="section__header section__header--tight">
+                        <p class="eyebrow">Contato</p>
+                        <h3 class="section__title">Canal da clínica</h3>
+                      </div>
+                      <div class="contact-grid" data-profile-contact></div>
+                    </article>
+                  </div>
+                </div>
+              </article>
+            </section>
           </div>
         </section>
       </main>
@@ -166,14 +383,15 @@
       <footer class="footer">
         <div class="container footer__inner">
           <div>
-            <strong>Club do Botox · Dra. Emlyn Dangui</strong>
-            <div class="footer__meta">Portal individual · <span data-current-year></span></div>
+            <strong>E-Club · Dra. Emlyn Dangui</strong>
+            <div class="footer__meta">Painel restrito · <span data-current-year></span></div>
           </div>
-          <div class="footer__meta">Use o nome completo ou o código do QR para abrir a ficha.</div>
+          <div class="footer__meta">Criação e edição de páginas individuais de pacientes.</div>
         </div>
       </footer>
     </div>
 
-    <script src="app.js"></script>
+    <script src="shared.js"></script>
+    <script src="admin.js"></script>
   </body>
 </html>

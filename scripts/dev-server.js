@@ -3,6 +3,7 @@ const http = require("http");
 const { promises: fs } = require("fs");
 const path = require("path");
 
+const adminHandler = require("../api/admin");
 const patientHandler = require("../api/patient");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -65,6 +66,28 @@ async function resolveStaticFile(pathname) {
   return null;
 }
 
+function rewritePath(requestUrl) {
+  const rewritten = new URL(requestUrl.toString());
+
+  if (rewritten.pathname === "/admin") {
+    rewritten.pathname = "/";
+  }
+
+  const patientPrefixes = ["/p/", "/paciente/", "/assinatura/"];
+  for (const prefix of patientPrefixes) {
+    if (rewritten.pathname.startsWith(prefix)) {
+      const slug = decodeURIComponent(rewritten.pathname.slice(prefix.length));
+      rewritten.pathname = "/assinatura.html";
+      if (slug) {
+        rewritten.searchParams.set("slug", slug);
+      }
+      break;
+    }
+  }
+
+  return rewritten;
+}
+
 async function serveFile(res, filePath, method = "GET") {
   const body = await fs.readFile(filePath);
   res.statusCode = 200;
@@ -81,8 +104,14 @@ async function serveFile(res, filePath, method = "GET") {
 const server = http.createServer(async (req, res) => {
   try {
     const requestUrl = new URL(req.url, `http://${req.headers.host || "localhost"}`);
+    const rewrittenUrl = rewritePath(requestUrl);
 
-    if (requestUrl.pathname.startsWith("/api/patient")) {
+    if (rewrittenUrl.pathname.startsWith("/api/admin")) {
+      await adminHandler(req, res);
+      return;
+    }
+
+    if (rewrittenUrl.pathname.startsWith("/api/patient")) {
       await patientHandler(req, res);
       return;
     }
@@ -94,7 +123,7 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    const filePath = await resolveStaticFile(requestUrl.pathname);
+    const filePath = await resolveStaticFile(rewrittenUrl.pathname);
     if (!filePath) {
       res.statusCode = 404;
       res.setHeader("Content-Type", "text/plain; charset=utf-8");
