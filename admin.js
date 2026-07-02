@@ -463,7 +463,10 @@ async function loadPatients(state) {
   const patients = useFallback && modelPatient ? [modelPatient, ...apiPatients] : apiPatients;
 
   if (useFallback) {
-    setStatusChip(result.ok ? "Exibindo paciente modelo" : "Exibindo paciente modelo localmente", result.ok ? "neutral" : "warning");
+    const message = result.ok
+      ? "Exibindo paciente modelo"
+      : result.payload?.error || "Exibindo paciente modelo localmente";
+    setStatusChip(message, result.ok ? "neutral" : "warning");
   }
 
   state.patients = patients;

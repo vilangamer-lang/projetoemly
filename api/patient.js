@@ -86,9 +86,10 @@ module.exports = async function handler(req, res) {
     });
   } catch (error) {
     const statusCode = Number(error?.statusCode) || 500;
+    const message = statusCode === 503 ? error.message : "Unable to load patient data";
     sendJson(res, statusCode, {
       found: false,
-      error: statusCode === 503 ? "Supabase is not configured" : "Unable to load patient data"
+      error: message
     });
   }
 };

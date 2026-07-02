@@ -128,7 +128,7 @@ async function setupPublicPatientPage() {
 
     const profile = window.EClub.createNotFoundProfile(lookupKey);
     applyState(profile);
-    setBanner("O banco ainda não respondeu. Verifique a conexão.", "warning");
+    setBanner(result.payload?.error || "O banco ainda não respondeu. Verifique a conexão.", "warning");
   } catch {
     const profile = window.EClub.createNotFoundProfile(lookupKey);
     applyState(profile);

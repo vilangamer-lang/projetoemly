@@ -263,8 +263,10 @@ module.exports = async function handler(req, res) {
     sendJson(res, 400, { error: "unknown_action" });
   } catch (error) {
     const statusCode = Number(error?.statusCode) || 500;
+    const errorMessage =
+      statusCode === 503 ? error.message : "unable_to_process_request";
     sendJson(res, statusCode, {
-      error: statusCode === 503 ? "admin_api_not_configured" : "unable_to_process_request",
+      error: errorMessage,
       detail: statusCode === 500 ? error.message : undefined
     });
   }
