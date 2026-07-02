@@ -100,12 +100,6 @@ async function setupPublicPatientPage() {
     return;
   }
 
-  if (lookupKey.toLowerCase() === "demo") {
-    const profile = window.EClub.createDefaultProfile("Assinatura demo", { demo: true });
-    applyState(profile);
-    return;
-  }
-
   setBanner("Carregando a página da paciente...", "neutral");
 
   try {
@@ -120,9 +114,23 @@ async function setupPublicPatientPage() {
     }
 
     if (result.status === 404) {
+      if (lookupKey.toLowerCase() === "demo") {
+        const profile = window.EClub.createDefaultProfile("Assinatura demo", { demo: true });
+        applyState(profile);
+        setBanner("Exibindo a página de demonstração.", "neutral");
+        return;
+      }
+
       const profile = window.EClub.createNotFoundProfile(lookupKey);
       applyState(profile);
       setBanner("Nenhuma página foi encontrada para este link.", "warning");
+      return;
+    }
+
+    if (lookupKey.toLowerCase() === "demo") {
+      const profile = window.EClub.createDefaultProfile("Assinatura demo", { demo: true });
+      applyState(profile);
+      setBanner("O banco não respondeu. Exibindo a demonstração local.", "warning");
       return;
     }
 
@@ -130,6 +138,13 @@ async function setupPublicPatientPage() {
     applyState(profile);
     setBanner(result.payload?.error || "O banco ainda não respondeu. Verifique a conexão.", "warning");
   } catch {
+    if (lookupKey.toLowerCase() === "demo") {
+      const profile = window.EClub.createDefaultProfile("Assinatura demo", { demo: true });
+      applyState(profile);
+      setBanner("O banco não respondeu. Exibindo a demonstração local.", "warning");
+      return;
+    }
+
     const profile = window.EClub.createNotFoundProfile(lookupKey);
     applyState(profile);
     setBanner("A página não pôde ser carregada agora.", "danger");

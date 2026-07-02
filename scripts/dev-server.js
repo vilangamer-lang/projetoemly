@@ -77,7 +77,7 @@ function rewritePath(requestUrl) {
   for (const prefix of patientPrefixes) {
     if (rewritten.pathname.startsWith(prefix)) {
       const slug = decodeURIComponent(rewritten.pathname.slice(prefix.length));
-      rewritten.pathname = "/assinatura";
+      rewritten.pathname = "/assinatura.html";
       if (slug) {
         rewritten.searchParams.set("slug", slug);
       }
