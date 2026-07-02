@@ -399,7 +399,7 @@
   }
 
   function buildPublicLink(slug) {
-    return new URL(`/p/${slugify(slug)}`, window.location.origin).toString();
+    return new URL(`/paciente/${slugify(slug)}`, window.location.origin).toString();
   }
 
   function copyText(value) {
