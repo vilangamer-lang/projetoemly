@@ -225,7 +225,7 @@ function syncPreview(form, previewRoot) {
   const profile = getPreviewProfile(form);
   profile.id = form._currentPatientId || "";
   window.EClub.renderPatientProfile(previewRoot, profile, { archived: profile.is_archived });
-  const accessChip = document.querySelector("[data-access-chip]");
+  const accessChip = previewRoot?.querySelector ? previewRoot.querySelector("[data-access-chip]") : document.querySelector("[data-access-chip]");
   if (accessChip) {
     accessChip.textContent = profile.status || "Pronta para edição";
   }
@@ -395,18 +395,77 @@ function createPreviewTarget() {
   return document.querySelector("[data-preview-root]") || document;
 }
 
+function buildModelPatientProfile() {
+  if (!window.EClub) return null;
+
+  return {
+    ...window.EClub.createDefaultProfile("Paciente modelo", { demo: true }),
+    status: "Paciente modelo",
+    subtitle: "Exemplo de página pública",
+    code: "PAC-001",
+    access: window.EClub.buildPublicLink("paciente1"),
+    focus: "Esta é uma amostra visual para revisar layout, leitura, hierarquia e link separado antes de salvar.",
+    notes: [
+      "Exemplo visual para conferir como a página pública fica no celular.",
+      "Os dados reais entram no Supabase quando você salvar o paciente.",
+      "O link separado desta ficha é https://linkaqui.com/paciente1."
+    ],
+    links: [
+      { label: "Página separada", url: "https://linkaqui.com/paciente1" }
+    ],
+    contact: [
+      { label: "Canal", value: "WhatsApp oficial da clínica" },
+      { label: "Cidade", value: "Itajaí - SC" },
+      { label: "Suporte", value: "Equipe do E-Club" }
+    ]
+  };
+}
+
+function createModelPatientRecord() {
+  const profile = buildModelPatientProfile();
+  if (!profile) return null;
+
+  return normalizePatientFromList({
+    id: "demo-paciente1",
+    slug: "paciente1",
+    access_code: "PAC-001",
+    full_name: "Paciente modelo",
+    is_archived: false,
+    profile
+  });
+}
+
+function renderAccessDemoPreview() {
+  const root = document.querySelector("[data-login-demo-preview]");
+  if (!root) return;
+
+  const profile = buildModelPatientProfile();
+  if (!profile) return;
+
+  window.EClub.renderPatientProfile(root, profile, { archived: false });
+
+  const banner = root.querySelector("[data-profile-banner]");
+  if (banner) {
+    banner.classList.remove("hidden");
+    banner.textContent = "Exemplo ilustrativo - paciente modelo";
+  }
+}
+
 function createBlankEditorState() {
   return createBlankPatient();
 }
 
 async function loadPatients(state) {
   const result = await apiRequest("list");
-  if (!result.ok) {
-    setStatusChip("Não foi possível carregar os pacientes", "warning");
-    return [];
+  const modelPatient = createModelPatientRecord();
+  const apiPatients = result.ok ? window.EClub.ensureArray(result.payload.patients).map(normalizePatientFromList) : [];
+  const useFallback = !result.ok || !apiPatients.length;
+  const patients = useFallback && modelPatient ? [modelPatient, ...apiPatients] : apiPatients;
+
+  if (useFallback) {
+    setStatusChip(result.ok ? "Exibindo paciente modelo" : "Exibindo paciente modelo localmente", result.ok ? "neutral" : "warning");
   }
 
-  const patients = window.EClub.ensureArray(result.payload.patients).map(normalizePatientFromList);
   state.patients = patients;
   updateCounts(patients);
   renderPatientList(patients, { ...state, selectedId: state.currentPatient?.id || "" });
@@ -769,6 +828,7 @@ async function bootstrap() {
   bindFormEvents(state);
   bindSidebarEvents(state);
   resetEditorToBlank();
+  renderAccessDemoPreview();
 
   const session = await apiRequest("session");
   if (!session.payload?.authenticated) {

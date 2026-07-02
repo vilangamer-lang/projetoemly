@@ -1,14 +1,16 @@
 create extension if not exists pgcrypto;
-create extension if not exists unaccent;
+create extension if not exists unaccent schema extensions;
+alter extension unaccent set schema extensions;
 
 create or replace function public.normalize_search_text(input text)
 returns text
 language sql
 immutable
+set search_path = public, extensions
 as $$
   select trim(
     regexp_replace(
-      regexp_replace(lower(unaccent(coalesce(input, ''))), '[^a-z0-9\s-]', '', 'g'),
+      regexp_replace(lower(extensions.unaccent(coalesce(input, ''))), '[^a-z0-9\s-]', '', 'g'),
       '\s+',
       ' ',
       'g'
@@ -38,11 +40,13 @@ create index if not exists patient_portal_access_code_idx
   on public.patient_portal (access_code);
 
 grant usage on schema public to service_role;
+grant usage on schema extensions to service_role;
 grant select, insert, update, delete on table public.patient_portal to service_role;
 
 create or replace function public.sync_patient_portal_search_columns()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   new.slug := public.normalize_search_text(coalesce(new.slug, new.full_name));
@@ -59,6 +63,14 @@ before insert or update on public.patient_portal
 for each row execute function public.sync_patient_portal_search_columns();
 
 alter table public.patient_portal enable row level security;
+
+drop policy if exists patient_portal_service_role_access on public.patient_portal;
+create policy patient_portal_service_role_access
+on public.patient_portal
+for all
+to service_role
+using (true)
+with check (true);
 
 insert into public.patient_portal (slug, access_code, full_name, profile)
 values (
@@ -141,6 +153,88 @@ values (
       { "label": "Canal", "value": "WhatsApp oficial da clínica" },
       { "label": "Cidade", "value": "Itajaí - SC" },
       { "label": "Suporte", "value": "Equipe do Club do Botox" }
+    ]
+  }$$::jsonb
+)
+on conflict (slug) do update
+set
+  access_code = excluded.access_code,
+  full_name = excluded.full_name,
+  profile = excluded.profile,
+  updated_at = now();
+
+insert into public.patient_portal (slug, access_code, full_name, profile)
+values (
+  'paciente1',
+  'pac001',
+  'Paciente modelo',
+  $${
+    "name": "Paciente modelo",
+    "initials": "PM",
+    "greeting": "Bem-vindo à E-Club, Paciente modelo",
+    "status": "Paciente modelo",
+    "code": "PAC-001",
+    "subtitle": "Exemplo de página pública",
+    "access": "Link separado da paciente",
+    "nextSession": "seg., 15 jul · 09:00",
+    "lastReview": "01 jul",
+    "focus": "Exemplo pronto para abrir em uma página separada.",
+    "appointments": [
+      {
+        "date": "15 jul",
+        "time": "09:00",
+        "title": "Retorno clínico",
+        "detail": "Revisão da evolução e definição do próximo passo.",
+        "status": "Confirmada"
+      },
+      {
+        "date": "29 jul",
+        "time": "11:00",
+        "title": "Acompanhamento",
+        "detail": "Leitura da resposta e ajustes de rotina.",
+        "status": "Programada"
+      }
+    ],
+    "visits": [
+      {
+        "date": "01 jul",
+        "title": "Última visita",
+        "detail": "Consulta de retorno com registro da evolução.",
+        "status": "Registrada"
+      },
+      {
+        "date": "11 jun",
+        "title": "Visita anterior",
+        "detail": "Avaliação inicial e alinhamento do plano.",
+        "status": "Registrada"
+      }
+    ],
+    "procedures": [
+      {
+        "date": "01 jul",
+        "title": "Revisão facial",
+        "detail": "Checagem do que mudou e do que deve ser mantido.",
+        "status": "Concluído"
+      },
+      {
+        "date": "11 jun",
+        "title": "Planejamento",
+        "detail": "Leitura facial, prioridades e sequência de cuidado.",
+        "status": "Registrado"
+      }
+    ],
+    "notes": [
+      "Exemplo de paciente modelo para validar a lista do painel.",
+      "O link separado desta ficha é https://linkaqui.com/paciente1.",
+      "Depois é só editar os campos para um caso real."
+    ],
+    "contact": [
+      { "label": "Canal", "value": "WhatsApp oficial da clínica" },
+      { "label": "Cidade", "value": "Itajaí - SC" },
+      { "label": "Suporte", "value": "Equipe do E-Club" }
+    ],
+    "links": [
+      { "label": "Página separada", "url": "https://linkaqui.com/paciente1" }
     ]
   }$$::jsonb
 )

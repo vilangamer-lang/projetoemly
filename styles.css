@@ -640,6 +640,61 @@ button {
   color: var(--ink);
 }
 
+.access-demo {
+  gap: 14px;
+}
+
+.access-demo__note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.access-demo__viewport {
+  max-height: min(72vh, 760px);
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.access-demo__viewport::-webkit-scrollbar {
+  width: 10px;
+}
+
+.access-demo__viewport::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.access-demo__viewport::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(5, 68, 100, 0.24);
+  background-clip: padding-box;
+}
+
+.access-demo__root {
+  min-width: 0;
+}
+
+.access-demo__root .hero__title {
+  font-size: clamp(2rem, 3.6vw, 3.4rem);
+}
+
+.access-demo__root .section__title {
+  font-size: clamp(1.45rem, 2.2vw, 2.1rem);
+}
+
+.access-demo__root .preview-hero {
+  grid-template-columns: 1fr;
+}
+
+.access-demo__root .preview-sections {
+  gap: 14px;
+}
+
+.access-demo__root .preview-panel {
+  height: auto;
+}
+
 .access-row input:focus-visible,
 .button:focus-visible,
 .site-nav a:focus-visible,
