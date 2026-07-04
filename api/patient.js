@@ -1,7 +1,6 @@
 const {
   getPatientByKey,
   normalizeProfile,
-  createDefaultProfile,
   createArchivedProfile
 } = require("../lib/supabase");
 
@@ -39,27 +38,8 @@ module.exports = async function handler(req, res) {
       requestUrl.searchParams.get("pacientes") ||
       "";
 
-    const normalized = String(rawKey || "").trim().toLowerCase();
-
     if (!rawKey) {
       sendJson(res, 404, { found: false, error: "missing_key" });
-      return;
-    }
-
-    if (normalized === "demo") {
-      const profile = createDefaultProfile("Assinatura demo", { demo: true });
-      sendJson(res, 200, {
-        found: true,
-        source: "demo",
-        patient: {
-          id: "demo",
-          slug: "demo",
-          access_code: "DEMO",
-          full_name: profile.name,
-          is_archived: false
-        },
-        profile
-      });
       return;
     }
 
