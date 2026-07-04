@@ -6,9 +6,8 @@ function resolvePatientTarget(request) {
     return new URL("/", url.origin).toString();
   }
 
-  const landingRoutes = new Set(["/p", "/paciente", "/pacientes", "/assinatura"]);
-  if (landingRoutes.has(pathname)) {
-    return new URL("/assinatura.html", url.origin).toString();
+  if (pathname === "/assinatura") {
+    return null;
   }
 
   const parts = pathname.split("/").filter(Boolean);
@@ -19,7 +18,7 @@ function resolvePatientTarget(request) {
   }
 
   const slug = decodeURIComponent(parts[1] || url.searchParams.get("slug") || url.searchParams.get("key") || "");
-  const target = new URL("/assinatura.html", url.origin);
+  const target = new URL("/assinatura", url.origin);
   if (slug) {
     target.searchParams.set("slug", slug);
   }
@@ -45,7 +44,6 @@ export const config = {
     "/paciente/:path*",
     "/pacientes",
     "/pacientes/:path*",
-    "/assinatura",
     "/assinatura/:path*"
   ]
 };

@@ -128,7 +128,7 @@
       <div class="status" data-route-status>Verificando a rota...</div>
       <div class="actions">
         <a class="button" href="/" data-home-link>Voltar ao painel</a>
-        <a class="button button--ghost" href="/assinatura.html">Abrir página pública</a>
+        <a class="button button--ghost" href="/assinatura">Abrir página pública</a>
       </div>
       <p class="meta" data-route-meta>
         Se você veio de um link do paciente, esta tela deve se corrigir em instantes.
@@ -150,7 +150,7 @@
         }
 
         function publicTargetFromSlug(slug) {
-          const target = new URL("/assinatura.html", window.location.origin);
+          const target = new URL("/assinatura", window.location.origin);
           if (slug) target.searchParams.set("slug", slug);
           return target.toString();
         }
@@ -161,8 +161,14 @@
         }
 
         const parts = rawPath.split("/").filter(Boolean);
-        const knownPrefixes = new Set(["p", "paciente", "pacientes", "assinatura"]);
+        const knownPrefixes = new Set(["p", "paciente", "pacientes"]);
         if (knownPrefixes.has(parts[0])) {
+          const slug = parts[1] || new URLSearchParams(window.location.search).get("slug") || "";
+          redirect(publicTargetFromSlug(slug), "Redirecionando para a página da paciente...");
+          return;
+        }
+
+        if (parts[0] === "assinatura" && parts.length > 1) {
           const slug = parts[1] || new URLSearchParams(window.location.search).get("slug") || "";
           redirect(publicTargetFromSlug(slug), "Redirecionando para a página da paciente...");
           return;

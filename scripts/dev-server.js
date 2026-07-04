@@ -75,7 +75,7 @@ function rewritePath(requestUrl) {
 
   const patientLandingRoutes = new Set(["/p", "/paciente", "/pacientes", "/assinatura"]);
   if (patientLandingRoutes.has(rewritten.pathname)) {
-    rewritten.pathname = "/assinatura.html";
+    rewritten.pathname = "/assinatura";
     return rewritten;
   }
 
@@ -83,7 +83,7 @@ function rewritePath(requestUrl) {
   for (const prefix of patientPrefixes) {
     if (rewritten.pathname.startsWith(prefix)) {
       const slug = decodeURIComponent(rewritten.pathname.slice(prefix.length));
-      rewritten.pathname = "/assinatura.html";
+      rewritten.pathname = "/assinatura";
       if (slug) {
         rewritten.searchParams.set("slug", slug);
       }
