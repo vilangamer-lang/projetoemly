@@ -615,7 +615,7 @@ async function toggleArchiveCurrentPatient(state) {
   const form = document.querySelector("[data-patient-form]");
   const patient = buildPatientPayload(form, state.currentPatient);
   patient.is_archived = !state.currentPatient.is_archived;
-  patient.profile.status = patient.is_archived ? "Página arquivada" : "Acesso individual ativo";
+  patient.profile.status = patient.is_archived ? "Página arquivada" : "Online";
   patient.profile.greeting = getField(form, "greeting") || `Bem-vindo à E-Club, ${patient.full_name}`;
   patient.profile.code = patient.access_code;
   patient.profile.name = patient.full_name;

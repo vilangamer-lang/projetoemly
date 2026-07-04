@@ -73,6 +73,10 @@
     return `${prefix}-${suffix}`.toLowerCase();
   }
 
+  function normalizeStatus(value) {
+    return value === "Acesso individual ativo" ? "Online" : value;
+  }
+
   function ensureArray(value) {
     return Array.isArray(value) ? value : [];
   }
@@ -109,7 +113,7 @@
       name,
       initials: getInitials(name),
       greeting: `Bem-vindo à E-Club, ${name}`,
-      status: demo ? "Página de demonstração" : "Acesso individual ativo",
+      status: demo ? "Página de demonstração" : "Online",
       code: demo ? "DEMO" : buildAccessCode(name),
       subtitle: demo ? "Visualização de demonstração" : "Página individual da paciente",
       access: "Link público da paciente",
@@ -191,7 +195,7 @@
       name,
       initials: source.initials || base.initials,
       greeting: source.greeting || `Bem-vindo à E-Club, ${name}`,
-      status: source.status || base.status,
+      status: normalizeStatus(source.status || base.status),
       code: source.code || base.code,
       subtitle: source.subtitle || base.subtitle,
       access: source.access || base.access,
@@ -796,6 +800,7 @@
     getFirstName,
     getInitials,
     buildAccessCode,
+    normalizeStatus,
     ensureArray,
     ensureObject,
     addDays,
