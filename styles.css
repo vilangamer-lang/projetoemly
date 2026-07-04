@@ -102,6 +102,29 @@ button {
   box-shadow: var(--shadow);
 }
 
+body[data-page="patient"] .brand__mark {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+}
+
+body[data-page="patient"] .brand__mark img {
+  width: 28px;
+  height: 36px;
+  object-fit: contain;
+}
+
+body[data-page="patient"] .footer__brand {
+  display: grid;
+  gap: 10px;
+}
+
+body[data-page="patient"] .footer__logo {
+  width: min(240px, 100%);
+  height: auto;
+  display: block;
+}
+
 .brand__copy {
   display: grid;
   gap: 2px;
