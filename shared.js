@@ -417,6 +417,377 @@
     return navigator.clipboard.writeText(String(value || ""));
   }
 
+  function setupBonusPopups() {
+    document.querySelectorAll("[data-bonus-popup]").forEach((popup) => setupBonusPopup(popup));
+  }
+
+  function setupBonusPopup(popup) {
+    if (!popup || popup.dataset.bonusReady === "true") return;
+
+    const dialog = popup.querySelector(".bonus-popup__dialog");
+    const closeButton = popup.querySelector("[data-bonus-close]");
+    const canvas = popup.querySelector("[data-bonus-canvas]");
+    const card = popup.querySelector("[data-bonus-card]");
+    const progressFill = popup.querySelector("[data-bonus-progress-fill]");
+    const progressText = popup.querySelector("[data-bonus-progress-text]");
+    const redeemButton = popup.querySelector("[data-bonus-redeem]");
+    const resetButton = popup.querySelector("[data-bonus-reset]");
+    const copyButton = popup.querySelector("[data-bonus-copy]");
+    const toast = popup.querySelector("[data-bonus-toast]");
+
+    if (!dialog || !canvas || !card) return;
+
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return;
+
+    popup.dataset.bonusReady = "true";
+
+    const coupon = popup.dataset.bonusCoupon || "EMLYN200";
+    const revealAt = Number.parseInt(popup.dataset.bonusRevealAt || "", 10) || 64;
+    const openDelay = Number.parseInt(popup.dataset.bonusOpenDelay || "", 10);
+    const delay = Number.isFinite(openDelay) ? openDelay : 3000;
+    const coverLogo = new Image();
+    coverLogo.src = popup.dataset.bonusLogo || "/assets/brandbook/emlyn-logo-lockup.png";
+
+    let previousBodyOverflow = "";
+    let isDrawing = false;
+    let lastPoint = null;
+    let revealed = false;
+    let particleTick = 0;
+    let toastTimer = null;
+
+    function openPopup() {
+      if (popup.classList.contains("is-active")) return;
+      previousBodyOverflow = document.body.style.overflow;
+      popup.classList.add("is-active");
+      popup.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      window.setTimeout(() => setupScratch(), 80);
+    }
+
+    function closePopup() {
+      popup.classList.remove("is-active");
+      popup.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = previousBodyOverflow;
+    }
+
+    function setupScratch() {
+      const rect = card.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      canvas.style.width = `${rect.width}px`;
+      canvas.style.height = `${rect.height}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      drawCover(rect.width, rect.height);
+      updateProgress(0);
+      revealed = false;
+      dialog.classList.remove("is-revealed");
+      if (redeemButton) redeemButton.disabled = true;
+    }
+
+    function drawCover(width, height) {
+      ctx.globalCompositeOperation = "source-over";
+      ctx.clearRect(0, 0, width, height);
+
+      const gradient = ctx.createLinearGradient(0, 0, width, height);
+      gradient.addColorStop(0, "#FFFDF8");
+      gradient.addColorStop(0.22, "#F4EEE5");
+      gradient.addColorStop(0.58, "#E8D6B4");
+      gradient.addColorStop(1, "#BC9C7C");
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, width, height);
+
+      const sea = ctx.createLinearGradient(0, height * 0.15, width, height * 0.9);
+      sea.addColorStop(0, "rgba(5,68,100,.10)");
+      sea.addColorStop(0.5, "rgba(255,255,255,.08)");
+      sea.addColorStop(1, "rgba(95,65,41,.10)");
+      ctx.fillStyle = sea;
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.globalAlpha = 0.38;
+      for (let y = -height; y < height * 2; y += 16) {
+        ctx.beginPath();
+        ctx.moveTo(-28, y);
+        ctx.bezierCurveTo(width * 0.24, y + 20, width * 0.58, y - 20, width + 32, y + 14);
+        ctx.strokeStyle = "rgba(255,255,255,.54)";
+        ctx.lineWidth = 1.05;
+        ctx.stroke();
+      }
+
+      ctx.globalAlpha = 0.65;
+      const halo = ctx.createRadialGradient(width * 0.5, height * 0.43, 8, width * 0.5, height * 0.43, Math.max(width, height) * 0.55);
+      halo.addColorStop(0, "rgba(255,255,255,.88)");
+      halo.addColorStop(0.28, "rgba(255,255,255,.32)");
+      halo.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = halo;
+      ctx.fillRect(0, 0, width, height);
+      ctx.globalAlpha = 1;
+
+      drawCoverLogo(width, height);
+
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#054464";
+      ctx.font = "900 12px Montserrat, Inter, sans-serif";
+      ctx.fillText("RASPE AQUI", width / 2, height - 34);
+
+      ctx.fillStyle = "rgba(5,68,100,.58)";
+      ctx.font = "700 10.5px Montserrat, Inter, sans-serif";
+      ctx.fillText("para revelar seu bônus", width / 2, height - 18);
+    }
+
+    function drawCoverLogo(width, height) {
+      const panelWidth = Math.min(width * 0.72, 235);
+      const panelHeight = Math.min(height * 0.66, 112);
+      const panelX = (width - panelWidth) / 2;
+      const panelY = 10;
+
+      ctx.save();
+      drawRoundRect(panelX, panelY, panelWidth, panelHeight, 18);
+      ctx.fillStyle = "rgba(255,253,248,.42)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(200,167,106,.26)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      if (coverLogo.complete && coverLogo.naturalWidth) {
+        const maxWidth = panelWidth * 0.78;
+        const maxHeight = panelHeight * 0.86;
+        const scale = Math.min(maxWidth / coverLogo.naturalWidth, maxHeight / coverLogo.naturalHeight);
+        const logoWidth = coverLogo.naturalWidth * scale;
+        const logoHeight = coverLogo.naturalHeight * scale;
+        const x = (width - logoWidth) / 2;
+        const y = panelY + (panelHeight - logoHeight) / 2;
+        ctx.shadowColor = "rgba(5,68,100,.18)";
+        ctx.shadowBlur = 12;
+        ctx.shadowOffsetY = 5;
+        ctx.drawImage(coverLogo, x, y, logoWidth, logoHeight);
+      } else {
+        drawShellIcon(width / 2, panelY + panelHeight / 2 - 10);
+      }
+
+      ctx.restore();
+    }
+
+    function drawRoundRect(x, y, width, height, radius) {
+      const size = Math.min(radius, width / 2, height / 2);
+      ctx.beginPath();
+      ctx.moveTo(x + size, y);
+      ctx.lineTo(x + width - size, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + size);
+      ctx.lineTo(x + width, y + height - size);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - size, y + height);
+      ctx.lineTo(x + size, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - size);
+      ctx.lineTo(x, y + size);
+      ctx.quadraticCurveTo(x, y, x + size, y);
+      ctx.closePath();
+    }
+
+    function drawShellIcon(cx, cy) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.strokeStyle = "rgba(95,65,41,.72)";
+      ctx.fillStyle = "rgba(255,255,255,.36)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, 34);
+      ctx.bezierCurveTo(-14, 5, -28, 4, -32, 18);
+      ctx.bezierCurveTo(-42, 6, -34, -14, -16, -4);
+      ctx.bezierCurveTo(-12, -27, 12, -27, 16, -4);
+      ctx.bezierCurveTo(34, -14, 42, 6, 32, 18);
+      ctx.bezierCurveTo(28, 4, 14, 5, 0, 34);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, 34);
+      ctx.lineTo(0, -20);
+      ctx.moveTo(0, 34);
+      ctx.lineTo(-15, 0);
+      ctx.moveTo(0, 34);
+      ctx.lineTo(15, 0);
+      ctx.moveTo(0, 34);
+      ctx.lineTo(-29, 18);
+      ctx.moveTo(0, 34);
+      ctx.lineTo(29, 18);
+      ctx.strokeStyle = "rgba(5,68,100,.38)";
+      ctx.lineWidth = 1.4;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function getPoint(event) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+        clientX: event.clientX,
+        clientY: event.clientY
+      };
+    }
+
+    function scratchAt(point) {
+      const brush = Math.max(26, Math.min(36, canvas.getBoundingClientRect().width * 0.085));
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.lineWidth = brush * 1.15;
+
+      if (lastPoint) {
+        ctx.beginPath();
+        ctx.moveTo(lastPoint.x, lastPoint.y);
+        ctx.lineTo(point.x, point.y);
+        ctx.stroke();
+      }
+
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, brush / 2, 0, Math.PI * 2);
+      ctx.fill();
+      lastPoint = point;
+
+      particleTick++;
+      if (particleTick % 3 === 0) createSpark(point.clientX, point.clientY);
+    }
+
+    function calculateProgress() {
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let transparent = 0;
+      let total = 0;
+
+      for (let i = 3; i < data.length; i += 32) {
+        total++;
+        if (data[i] < 80) transparent++;
+      }
+
+      return total ? Math.min(100, Math.round((transparent / total) * 100)) : 0;
+    }
+
+    function updateProgress(value) {
+      if (progressFill) progressFill.style.width = `${value}%`;
+      if (progressText) progressText.textContent = `${value}%`;
+    }
+
+    function revealBonus() {
+      if (revealed) return;
+      revealed = true;
+      dialog.classList.add("is-revealed");
+      if (redeemButton) redeemButton.disabled = false;
+      updateProgress(100);
+      launchConfetti();
+      showToast("Bônus de R$ 200 revelado");
+    }
+
+    function handleStart(event) {
+      if (revealed) return;
+      event.preventDefault();
+      isDrawing = true;
+      lastPoint = null;
+      canvas.setPointerCapture?.(event.pointerId);
+      scratchAt(getPoint(event));
+    }
+
+    function handleMove(event) {
+      if (!isDrawing || revealed) return;
+      event.preventDefault();
+      scratchAt(getPoint(event));
+      const progress = calculateProgress();
+      updateProgress(progress);
+      if (progress >= revealAt) revealBonus();
+    }
+
+    function handleEnd(event) {
+      if (!isDrawing) return;
+      isDrawing = false;
+      lastPoint = null;
+      canvas.releasePointerCapture?.(event.pointerId);
+      const progress = calculateProgress();
+      updateProgress(progress);
+      if (progress >= revealAt) revealBonus();
+    }
+
+    function createSpark(x, y) {
+      const spark = document.createElement("span");
+      spark.className = "bonus-popup__spark";
+      spark.style.left = `${x}px`;
+      spark.style.top = `${y}px`;
+      spark.style.setProperty("--bonus-spark-x", `${Math.random() * 54 - 27}px`);
+      spark.style.setProperty("--bonus-spark-y", `${Math.random() * 54 - 27}px`);
+      document.body.appendChild(spark);
+      window.setTimeout(() => spark.remove(), 700);
+    }
+
+    function launchConfetti() {
+      const colors = ["#054464", "#5F4129", "#BC9C7C", "#C8A76A", "#EDECEB"];
+
+      for (let i = 0; i < 54; i++) {
+        const piece = document.createElement("span");
+        piece.className = "bonus-popup__confetti";
+        piece.style.left = `${Math.random() * 100}vw`;
+        piece.style.setProperty("--bonus-confetti-color", colors[Math.floor(Math.random() * colors.length)]);
+        piece.style.setProperty("--bonus-confetti-x", `${Math.random() * 240 - 120}px`);
+        piece.style.setProperty("--bonus-confetti-rotation", `${Math.random() * 720 - 360}deg`);
+        piece.style.setProperty("--bonus-confetti-duration", `${1.8 + Math.random() * 1.2}s`);
+        piece.style.animationDelay = `${Math.random() * 0.22}s`;
+        document.body.appendChild(piece);
+        window.setTimeout(() => piece.remove(), 3400);
+      }
+    }
+
+    async function copyCoupon() {
+      try {
+        if (!navigator.clipboard) throw new Error("Clipboard API unavailable");
+        await navigator.clipboard.writeText(coupon);
+        showToast(`Cupom copiado: ${coupon}`);
+      } catch {
+        showToast(`Cupom: ${coupon}`);
+      }
+    }
+
+    function showToast(message) {
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add("is-active");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => toast.classList.remove("is-active"), 2200);
+    }
+
+    canvas.addEventListener("pointerdown", handleStart);
+    canvas.addEventListener("pointermove", handleMove);
+    canvas.addEventListener("pointerup", handleEnd);
+    canvas.addEventListener("pointercancel", handleEnd);
+    window.addEventListener("pointerup", handleEnd);
+    closeButton?.addEventListener("click", closePopup);
+    popup.addEventListener("click", (event) => {
+      if (event.target === popup) closePopup();
+    });
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && popup.classList.contains("is-active")) closePopup();
+    });
+    window.addEventListener("resize", () => {
+      if (popup.classList.contains("is-active")) setupScratch();
+    });
+    coverLogo.addEventListener("load", () => {
+      if (popup.classList.contains("is-active")) setupScratch();
+    });
+    resetButton?.addEventListener("click", setupScratch);
+    copyButton?.addEventListener("click", copyCoupon);
+    redeemButton?.addEventListener("click", () => {
+      void copyCoupon();
+      showToast("Bônus de R$ 200 pronto para resgate");
+    });
+
+    window.setTimeout(openPopup, delay);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", setupBonusPopups);
+  } else {
+    setupBonusPopups();
+  }
+
   window.EClub = {
     escapeHtml,
     normalizeKey,
@@ -436,6 +807,7 @@
     createArchivedProfile,
     renderPatientProfile,
     buildPublicLink,
-    copyText
+    copyText,
+    setupBonusPopups
   };
 })();
