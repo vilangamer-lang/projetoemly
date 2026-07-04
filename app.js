@@ -12,7 +12,8 @@ function readLookupKey() {
     params.get("name"),
     params.get("code"),
     params.get("id"),
-    params.get("paciente")
+    params.get("paciente"),
+    params.get("pacientes")
   ].filter(Boolean);
 
   if (candidates.length) {
@@ -22,7 +23,7 @@ function readLookupKey() {
   const pathParts = window.location.pathname.split("/").filter(Boolean);
   if (!pathParts.length) return "";
 
-  if (["p", "paciente", "assinatura"].includes(pathParts[0])) {
+  if (["p", "paciente", "pacientes", "assinatura"].includes(pathParts[0])) {
     return decodeURIComponent(pathParts[1] || "");
   }
 

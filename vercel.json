@@ -8,8 +8,13 @@
   "trailingSlash": false,
   "rewrites": [
     { "source": "/admin", "destination": "/" },
+    { "source": "/p", "destination": "/assinatura.html" },
     { "source": "/p/:slug", "destination": "/assinatura.html?slug=:slug" },
+    { "source": "/paciente", "destination": "/assinatura.html" },
     { "source": "/paciente/:slug", "destination": "/assinatura.html?slug=:slug" },
+    { "source": "/pacientes", "destination": "/assinatura.html" },
+    { "source": "/pacientes/:slug", "destination": "/assinatura.html?slug=:slug" },
+    { "source": "/assinatura", "destination": "/assinatura.html" },
     { "source": "/assinatura/:slug", "destination": "/assinatura.html?slug=:slug" }
   ]
 }

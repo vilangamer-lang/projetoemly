@@ -225,7 +225,7 @@ values (
     ],
     "notes": [
       "Exemplo de paciente modelo para validar a lista do painel.",
-      "O link separado desta ficha é https://linkaqui.com/paciente1.",
+      "O link separado desta ficha é /paciente/paciente1.",
       "Depois é só editar os campos para um caso real."
     ],
     "contact": [
@@ -234,7 +234,7 @@ values (
       { "label": "Suporte", "value": "Equipe do E-Club" }
     ],
     "links": [
-      { "label": "Página separada", "url": "https://linkaqui.com/paciente1" }
+      { "label": "Página separada", "url": "/paciente/paciente1" }
     ]
   }$$::jsonb
 )

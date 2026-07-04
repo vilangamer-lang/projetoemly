@@ -398,20 +398,22 @@ function createPreviewTarget() {
 function buildModelPatientProfile() {
   if (!window.EClub) return null;
 
+  const publicLink = window.EClub.buildPublicLink("paciente1");
+
   return {
     ...window.EClub.createDefaultProfile("Paciente modelo", { demo: true }),
     status: "Paciente modelo",
     subtitle: "Exemplo de página pública",
     code: "PAC-001",
-    access: window.EClub.buildPublicLink("paciente1"),
+    access: publicLink,
     focus: "Esta é uma amostra visual para revisar layout, leitura, hierarquia e link separado antes de salvar.",
     notes: [
       "Exemplo visual para conferir como a página pública fica no celular.",
       "Os dados reais entram no Supabase quando você salvar o paciente.",
-      "O link separado desta ficha é https://linkaqui.com/paciente1."
+      `O link separado desta ficha é ${publicLink}.`
     ],
     links: [
-      { label: "Página separada", url: "https://linkaqui.com/paciente1" }
+      { label: "Página separada", url: publicLink }
     ],
     contact: [
       { label: "Canal", value: "WhatsApp oficial da clínica" },

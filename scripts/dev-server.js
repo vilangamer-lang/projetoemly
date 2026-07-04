@@ -73,7 +73,13 @@ function rewritePath(requestUrl) {
     rewritten.pathname = "/";
   }
 
-  const patientPrefixes = ["/p/", "/paciente/", "/assinatura/"];
+  const patientLandingRoutes = new Set(["/p", "/paciente", "/pacientes", "/assinatura"]);
+  if (patientLandingRoutes.has(rewritten.pathname)) {
+    rewritten.pathname = "/assinatura.html";
+    return rewritten;
+  }
+
+  const patientPrefixes = ["/p/", "/paciente/", "/pacientes/", "/assinatura/"];
   for (const prefix of patientPrefixes) {
     if (rewritten.pathname.startsWith(prefix)) {
       const slug = decodeURIComponent(rewritten.pathname.slice(prefix.length));

@@ -36,6 +36,7 @@ module.exports = async function handler(req, res) {
       requestUrl.searchParams.get("code") ||
       requestUrl.searchParams.get("id") ||
       requestUrl.searchParams.get("paciente") ||
+      requestUrl.searchParams.get("pacientes") ||
       "";
 
     const normalized = String(rawKey || "").trim().toLowerCase();
