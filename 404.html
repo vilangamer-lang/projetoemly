@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>E-Club | Página não encontrada</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f0e8;
+        --panel: #fdfaf4;
+        --text: #1d2230;
+        --muted: #5e6472;
+        --accent: #054464;
+        --accent-soft: rgba(5, 68, 100, 0.12);
+        --line: rgba(29, 34, 48, 0.12);
+        --shadow: 0 28px 70px rgba(29, 34, 48, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at top left, rgba(188, 156, 124, 0.28), transparent 34%),
+          radial-gradient(circle at top right, rgba(5, 68, 100, 0.18), transparent 28%),
+          linear-gradient(180deg, #fcfbf8 0%, var(--bg) 100%);
+        color: var(--text);
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      .card {
+        width: min(720px, 100%);
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        padding: clamp(24px, 4vw, 40px);
+      }
+
+      .eyebrow {
+        margin: 0 0 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        font-size: 0.75rem;
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2rem, 4vw, 3.3rem);
+        line-height: 1.03;
+      }
+
+      p {
+        margin: 16px 0 0;
+        max-width: 58ch;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .status {
+        margin-top: 24px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: var(--accent-soft);
+        border: 1px solid rgba(5, 68, 100, 0.18);
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      .actions {
+        margin-top: 24px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      a {
+        text-decoration: none;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 0 18px;
+        border-radius: 999px;
+        border: 1px solid rgba(5, 68, 100, 0.18);
+        background: var(--accent);
+        color: #fff;
+        font-weight: 700;
+      }
+
+      .button--ghost {
+        background: transparent;
+        color: var(--accent);
+      }
+
+      .meta {
+        margin-top: 18px;
+        font-size: 0.92rem;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <p class="eyebrow">E-Club · Dra. Emlyn Dangui</p>
+      <h1>Página não encontrada</h1>
+      <p>
+        A rota solicitada caiu na página de 404 da Vercel. Se isso veio de um link de paciente, vou redirecionar para
+        a página pública correta.
+      </p>
+      <div class="status" data-route-status>Verificando a rota...</div>
+      <div class="actions">
+        <a class="button" href="/" data-home-link>Voltar ao painel</a>
+        <a class="button button--ghost" href="/assinatura.html">Abrir página pública</a>
+      </div>
+      <p class="meta" data-route-meta>
+        Se você veio de um link do paciente, esta tela deve se corrigir em instantes.
+      </p>
+    </main>
+
+    <script>
+      (function () {
+        const status = document.querySelector("[data-route-status]");
+        const meta = document.querySelector("[data-route-meta]");
+        const homeLink = document.querySelector("[data-home-link]");
+        const rawPath = window.location.pathname.replace(/\/+$/, "") || "/";
+
+        function redirect(target, message) {
+          if (status && message) {
+            status.textContent = message;
+          }
+          window.location.replace(target);
+        }
+
+        function publicTargetFromSlug(slug) {
+          const target = new URL("/assinatura.html", window.location.origin);
+          if (slug) target.searchParams.set("slug", slug);
+          return target.toString();
+        }
+
+        if (rawPath === "/admin") {
+          redirect("/", "Redirecionando para o painel...");
+          return;
+        }
+
+        const parts = rawPath.split("/").filter(Boolean);
+        const knownPrefixes = new Set(["p", "paciente", "pacientes", "assinatura"]);
+        if (knownPrefixes.has(parts[0])) {
+          const slug = parts[1] || new URLSearchParams(window.location.search).get("slug") || "";
+          redirect(publicTargetFromSlug(slug), "Redirecionando para a página da paciente...");
+          return;
+        }
+
+        if (homeLink) {
+          homeLink.textContent = "Ir para o painel";
+        }
+
+        if (status) {
+          status.textContent = "Esta rota não existe neste deploy.";
+        }
+        if (meta) {
+          meta.textContent = "Use o botão abaixo para voltar ao início ou abrir a página pública.";
+        }
+      })();
+    </script>
+  </body>
+</html>
