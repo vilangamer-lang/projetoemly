@@ -297,7 +297,7 @@ function populateForm(form, patient) {
   setField(form, "status", profile.status || "Aguardando atendimento");
   setField(form, "greeting", profile.greeting || `Bem-vindo à E-Club, ${safe.full_name || profile.name || "Paciente"}`);
   setField(form, "subtitle", profile.subtitle || "Página individual da paciente");
-  setField(form, "focus", profile.focus || "Role a tela para baixo para ver mais...");
+  setField(form, "focus", profile.focus || "Resumo clínico, agenda e orientações em uma única visão.");
   setField(form, "nextSession", profile.nextSession || "");
   setField(form, "lastReview", profile.lastReview || "");
   setField(form, "notes", window.EClub.ensureArray(profile.notes).join("\n"));

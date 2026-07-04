@@ -87,7 +87,7 @@ values (
     "access": "Nome completo ou QR",
     "nextSession": "seg., 12 mai · 14:30",
     "lastReview": "03 mai",
-    "focus": "Role a tela para baixo para ver mais...",
+    "focus": "Resumo clínico, agenda e orientações em uma única visão.",
     "appointments": [
       {
         "date": "12 mai",

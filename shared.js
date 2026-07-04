@@ -115,7 +115,7 @@
       access: "Link público da paciente",
       nextSession: demo ? "Seg., 12 mai · 14:30" : `Próxima consulta com ${firstName}`,
       lastReview: demo ? "03 mai" : formatShortDate(lastVisit),
-      focus: "Role a tela para baixo para ver mais...",
+      focus: "Resumo clínico, agenda e orientações em uma única visão.",
       appointments: demo
         ? [
             {
@@ -279,6 +279,8 @@
     const contactEl = query("[data-profile-contact]");
     const linksEl = query("[data-profile-links]");
     const chipEl = query("[data-access-chip]");
+    const appointmentCountEls = scope.querySelectorAll ? Array.from(scope.querySelectorAll("[data-profile-appointments-count]")) : [];
+    const visitCountEls = scope.querySelectorAll ? Array.from(scope.querySelectorAll("[data-profile-visits-count]")) : [];
 
     if (nameEl) nameEl.textContent = data.name;
     if (greetingEl) greetingEl.textContent = data.greeting || `Bem-vindo à E-Club, ${data.name}`;
@@ -292,6 +294,12 @@
       element.textContent = data.status || "";
     });
     if (chipEl) chipEl.textContent = data.status || "Acesso individual";
+    appointmentCountEls.forEach((element) => {
+      element.textContent = `${data.appointments.length} ${data.appointments.length === 1 ? "consulta" : "consultas"}`;
+    });
+    visitCountEls.forEach((element) => {
+      element.textContent = `${data.visits.length} ${data.visits.length === 1 ? "visita" : "visitas"}`;
+    });
 
     if (bannerEl) {
       if (data.is_archived || options.archived) {
@@ -374,10 +382,10 @@
       "[data-profile-contact]",
       data.contact,
       (item) => `
-        <article class="contact-item">
-          <p class="contact-item__label">${escapeHtml(item.label)}</p>
-          <p class="contact-item__value">${escapeHtml(item.value)}</p>
-        </article>`,
+        <dl class="contact-item">
+          <dt class="contact-item__label">${escapeHtml(item.label)}</dt>
+          <dd class="contact-item__value">${escapeHtml(item.value)}</dd>
+        </dl>`,
       "Nenhum contato cadastrado"
     );
 
@@ -386,12 +394,15 @@
       "[data-profile-links]",
       data.links,
       (item) => `
-        <article class="contact-item">
-          <p class="contact-item__label">${escapeHtml(item.label)}</p>
-          <p class="contact-item__value"><a href="${escapeHtml(item.url)}" target="_blank" rel="noreferrer">${escapeHtml(
-            item.url
-          )}</a></p>
-        </article>`,
+        <dl class="contact-item contact-item--link">
+          <dt class="contact-item__label">${escapeHtml(item.label)}</dt>
+          <dd class="contact-item__value">
+            <a class="contact-item__link" href="${escapeHtml(item.url)}" target="_blank" rel="noreferrer">
+              <span>Abrir recurso</span>
+              <span class="contact-item__link-icon" aria-hidden="true">↗</span>
+            </a>
+          </dd>
+        </dl>`,
       "Sem links cadastrados"
     );
 

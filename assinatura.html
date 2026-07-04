@@ -44,11 +44,11 @@
             <div>
               <p class="eyebrow">E-Club</p>
               <h1 class="hero__title" data-profile-greeting>Bem-vindo à E-Club</h1>
-              <p class="hero__lede" data-profile-focus>Role a tela para baixo para ver mais...</p>
-              <div class="hero__meta">
+              <p class="hero__lede" data-profile-focus>Resumo clínico, agenda e orientações em uma única visão.</p>
+              <div class="hero__meta hero__meta--facts">
                 <span class="chip chip--solid" data-profile-status>Acesso individual ativo</span>
-                <span class="chip">Página em português</span>
-                <span class="chip">Conteúdo da clínica</span>
+                <span class="chip" data-profile-appointments-count>0 consultas</span>
+                <span class="chip" data-profile-visits-count>0 visitas</span>
               </div>
             </div>
 
@@ -64,20 +64,20 @@
 
               <div class="patient-meta">
                 <div class="patient-meta__item">
-                  <span class="patient-meta__label">Código</span>
-                  <strong class="patient-meta__value" data-profile-access>Sem código</strong>
-                </div>
-                <div class="patient-meta__item">
                   <span class="patient-meta__label">Próxima consulta</span>
                   <strong class="patient-meta__value" data-profile-next>Sem agenda</strong>
+                </div>
+                <div class="patient-meta__item">
+                  <span class="patient-meta__label">Status</span>
+                  <strong class="patient-meta__value" data-profile-status>Em acompanhamento</strong>
                 </div>
                 <div class="patient-meta__item">
                   <span class="patient-meta__label">Última revisão</span>
                   <strong class="patient-meta__value" data-profile-review>Sem histórico</strong>
                 </div>
                 <div class="patient-meta__item">
-                  <span class="patient-meta__label">Status</span>
-                  <strong class="patient-meta__value" data-profile-status>Em acompanhamento</strong>
+                  <span class="patient-meta__label">Código</span>
+                  <strong class="patient-meta__value" data-profile-access>Sem código</strong>
                 </div>
               </div>
             </aside>
@@ -86,57 +86,64 @@
 
         <section class="section section--deep">
           <div class="container dashboard">
-            <div class="dashboard__split">
-              <article class="patient-section">
-                <div class="section__header section__header--tight">
-                  <p class="eyebrow">Agenda</p>
-                  <h2 class="section__title">Próximas consultas</h2>
-                </div>
-                <ul class="record-list" data-profile-appointments></ul>
-              </article>
+            <article class="patient-section patient-section--timeline">
+              <div class="section__header section__header--tight">
+                <p class="eyebrow">Linha do tempo</p>
+                <h2 class="section__title">Agenda e histórico</h2>
+                <p class="section__lede">Os próximos passos vêm primeiro, seguidos pela evolução recente.</p>
+              </div>
 
-              <article class="patient-section">
-                <div class="section__header section__header--tight">
-                  <p class="eyebrow">Histórico</p>
-                  <h2 class="section__title">Visitas anteriores</h2>
-                </div>
-                <ul class="record-list" data-profile-history></ul>
-              </article>
-            </div>
+              <div class="timeline-stack">
+                <section class="timeline-block">
+                  <div class="timeline-block__head">
+                    <h3 class="timeline-block__title">Próximas consultas</h3>
+                    <span class="timeline-block__meta" data-profile-appointments-count>0 consultas</span>
+                  </div>
+                  <ul class="record-list" data-profile-appointments></ul>
+                </section>
 
-            <div class="dashboard__split">
+                <section class="timeline-block">
+                  <div class="timeline-block__head">
+                    <h3 class="timeline-block__title">Visitas anteriores</h3>
+                    <span class="timeline-block__meta" data-profile-visits-count>0 visitas</span>
+                  </div>
+                  <ul class="record-list" data-profile-history></ul>
+                </section>
+              </div>
+            </article>
+
+            <div class="dashboard__split dashboard__split--secondary">
               <article class="patient-section">
                 <div class="section__header section__header--tight">
                   <p class="eyebrow">Procedimentos</p>
                   <h2 class="section__title">O que já foi feito</h2>
+                  <p class="section__lede">A leitura clínica fica em sequência, sem ruído visual.</p>
                 </div>
                 <ul class="record-list" data-profile-procedures></ul>
               </article>
 
-              <article class="patient-section">
+              <article class="patient-section patient-section--support">
                 <div class="section__header section__header--tight">
-                  <p class="eyebrow">Observações</p>
-                  <h2 class="section__title">Leitura rápida</h2>
+                  <p class="eyebrow">Apoio</p>
+                  <h2 class="section__title">Observações, links e contato</h2>
+                  <p class="section__lede">Materiais de referência e canal da clínica em um único bloco.</p>
                 </div>
-                <ul class="note-list" data-profile-notes></ul>
-              </article>
-            </div>
+                <div class="support-grid">
+                  <article class="support-card">
+                    <h3 class="support-card__title">Observações</h3>
+                    <ul class="note-list" data-profile-notes></ul>
+                  </article>
 
-            <div class="dashboard__split">
-              <article class="patient-section">
-                <div class="section__header section__header--tight">
-                  <p class="eyebrow">Links</p>
-                  <h2 class="section__title">Materiais e referências</h2>
-                </div>
-                <div class="contact-grid" data-profile-links></div>
-              </article>
+                  <article class="support-card">
+                    <h3 class="support-card__title">Links</h3>
+                    <div class="contact-grid contact-grid--support" data-profile-links></div>
+                  </article>
 
-              <article class="patient-section">
-                <div class="section__header section__header--tight">
-                  <p class="eyebrow">Contato</p>
-                  <h2 class="section__title">Canal da clínica</h2>
+                  <article class="support-card">
+                    <h3 class="support-card__title">Contato</h3>
+                    <div class="contact-grid contact-grid--support" data-profile-contact></div>
+                  </article>
                 </div>
-                <div class="contact-grid" data-profile-contact></div>
               </article>
             </div>
           </div>
@@ -156,7 +163,6 @@
             />
             <div class="footer__meta">Página individual do paciente · <span data-current-year></span></div>
           </div>
-          <div class="footer__meta">Role a tela para baixo para ver mais...</div>
         </div>
       </footer>
     </div>

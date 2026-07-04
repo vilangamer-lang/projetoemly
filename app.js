@@ -81,6 +81,8 @@ function applyState(profile) {
   } else {
     hideBanner();
   }
+
+  document.body.classList.add("is-patient-ready");
 }
 
 async function setupPublicPatientPage() {
