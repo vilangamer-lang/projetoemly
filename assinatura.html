@@ -17,11 +17,12 @@
           <a class="brand" href="/" aria-label="E-Club da Dra. Emlyn Dangui">
             <span class="brand__mark" aria-hidden="true">
               <img
-                src="/assets/brandbook/emlyn-logo-mark.png"
+                src="/assets/brandbook/emlyn-logo-mark-blue-light-transparent.png"
                 alt=""
                 width="137"
                 height="175"
                 decoding="async"
+                fetchpriority="high"
               />
             </span>
             <span class="brand__copy">
@@ -79,6 +80,17 @@
                   <span class="patient-meta__label">Código</span>
                   <strong class="patient-meta__value" data-profile-access>Sem código</strong>
                 </div>
+              </div>
+
+              <div class="patient-quick-grid" aria-label="Ações rápidas da paciente">
+                <section class="patient-quick-card">
+                  <h3 class="patient-quick-card__title">Contato rápido</h3>
+                  <div class="patient-quick-list" data-profile-contact></div>
+                </section>
+                <section class="patient-quick-card">
+                  <h3 class="patient-quick-card__title">Materiais úteis</h3>
+                  <div class="patient-quick-list" data-profile-links></div>
+                </section>
               </div>
             </aside>
           </div>
@@ -155,11 +167,12 @@
           <div class="footer__brand">
             <img
               class="footer__logo"
-              src="/assets/brandbook/emlyn-logo-lockup.png"
+              src="/assets/brandbook/emlyn-logo-lockup-blue-light-transparent.png"
               alt="E-Club · Dra. Emlyn Dangui"
               width="468"
               height="299"
               decoding="async"
+              loading="lazy"
             />
             <div class="footer__meta">Página individual do paciente · <span data-current-year></span></div>
           </div>
@@ -173,6 +186,7 @@
       data-bonus-open-delay="3000"
       data-bonus-coupon="EMLYN200"
       data-bonus-reveal-at="64"
+      data-bonus-logo="/assets/brandbook/emlyn-logo-lockup-blue-transparent.png"
       aria-hidden="true"
     >
       <section class="bonus-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="bonus-popup-title">
@@ -180,11 +194,12 @@
         <div class="bonus-popup__inner">
           <img
             class="bonus-popup__brand"
-            src="/assets/brandbook/emlyn-logo-lockup.png"
+            src="/assets/brandbook/emlyn-logo-lockup-blue-transparent.png"
             alt="Dra. Emlyn Dangui"
             width="468"
             height="299"
             decoding="async"
+            loading="lazy"
           />
 
           <div class="bonus-popup__tag">Presente especial</div>

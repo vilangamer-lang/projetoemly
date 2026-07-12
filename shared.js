@@ -249,16 +249,26 @@
   }
 
   function renderList(root, selector, items, renderer, emptyText) {
-    const container = root?.querySelector ? root.querySelector(selector) : document.querySelector(selector);
-    if (!container) return;
+    const scope = root?.querySelectorAll ? root : document;
+    const containers = Array.from(scope.querySelectorAll(selector));
+    if (!containers.length) return;
 
     const safeItems = ensureArray(items);
+
     if (!safeItems.length) {
-      container.innerHTML = `<li class="record record--empty"><div class="record__body"><p class="record__title">${escapeHtml(emptyText || "Sem registros")}</p></div></li>`;
+      containers.forEach((container) => {
+        const isList = ["UL", "OL"].includes(container.tagName);
+        const emptyTag = isList ? "li" : "div";
+        const markup = `<${emptyTag} class="record record--empty"><div class="record__body"><p class="record__title">${escapeHtml(emptyText || "Sem registros")}</p></div></${emptyTag}>`;
+        container.innerHTML = markup;
+      });
       return;
     }
 
-    container.innerHTML = safeItems.map(renderer).join("");
+    const markup = safeItems.map(renderer).join("");
+    containers.forEach((container) => {
+      container.innerHTML = markup;
+    });
   }
 
   function renderPatientProfile(root, profile, options = {}) {
@@ -451,7 +461,7 @@
     const openDelay = Number.parseInt(popup.dataset.bonusOpenDelay || "", 10);
     const delay = Number.isFinite(openDelay) ? openDelay : 3000;
     const coverLogo = new Image();
-    coverLogo.src = popup.dataset.bonusLogo || "/assets/brandbook/emlyn-logo-lockup.png";
+    coverLogo.src = popup.dataset.bonusLogo || "/assets/brandbook/emlyn-logo-lockup-blue-transparent.png";
 
     let previousBodyOverflow = "";
     let isDrawing = false;
@@ -459,27 +469,53 @@
     let revealed = false;
     let particleTick = 0;
     let toastTimer = null;
+    let previouslyFocused = null;
+    let scratchRect = null;
+    let brushSize = 28;
+    let progressTimer = null;
+    let lastProgressCheck = 0;
+    let resizeTimer = null;
+    const reducedMotionQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    const coarsePointerQuery = window.matchMedia?.("(pointer: coarse)");
+
+    canvas.setAttribute("tabindex", "0");
+    canvas.setAttribute("role", "button");
+    canvas.setAttribute("aria-label", "Raspar ou pressionar Enter para revelar o bônus");
+
+    function shouldReduceBonusMotion() {
+      return Boolean(
+        reducedMotionQuery?.matches ||
+          coarsePointerQuery?.matches ||
+          window.innerWidth <= 720
+      );
+    }
 
     function openPopup() {
       if (popup.classList.contains("is-active")) return;
+      previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       previousBodyOverflow = document.body.style.overflow;
       popup.classList.add("is-active");
       popup.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
       window.setTimeout(() => setupScratch(), 80);
+      window.setTimeout(() => closeButton?.focus(), 120);
     }
 
     function closePopup() {
       popup.classList.remove("is-active");
       popup.setAttribute("aria-hidden", "true");
       document.body.style.overflow = previousBodyOverflow;
+      previouslyFocused?.focus?.();
     }
 
     function setupScratch() {
       const rect = card.getBoundingClientRect();
       if (!rect.width || !rect.height) return;
 
-      const dpr = window.devicePixelRatio || 1;
+      scratchRect = rect;
+      brushSize = Math.max(26, Math.min(36, rect.width * 0.085));
+
+      const dpr = Math.min(window.devicePixelRatio || 1, shouldReduceBonusMotion() ? 1.5 : 2);
       canvas.width = Math.round(rect.width * dpr);
       canvas.height = Math.round(rect.height * dpr);
       canvas.style.width = `${rect.width}px`;
@@ -488,6 +524,9 @@
       drawCover(rect.width, rect.height);
       updateProgress(0);
       revealed = false;
+      lastProgressCheck = 0;
+      window.clearTimeout(progressTimer);
+      progressTimer = null;
       dialog.classList.remove("is-revealed");
       if (redeemButton) redeemButton.disabled = true;
     }
@@ -497,17 +536,17 @@
       ctx.clearRect(0, 0, width, height);
 
       const gradient = ctx.createLinearGradient(0, 0, width, height);
-      gradient.addColorStop(0, "#FFFDF8");
-      gradient.addColorStop(0.22, "#F4EEE5");
-      gradient.addColorStop(0.58, "#E8D6B4");
-      gradient.addColorStop(1, "#BC9C7C");
+      gradient.addColorStop(0, "#F7FCFC");
+      gradient.addColorStop(0.22, "#DDEFF2");
+      gradient.addColorStop(0.58, "#9FC9D2");
+      gradient.addColorStop(1, "#0B6F85");
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 
       const sea = ctx.createLinearGradient(0, height * 0.15, width, height * 0.9);
-      sea.addColorStop(0, "rgba(5,68,100,.10)");
-      sea.addColorStop(0.5, "rgba(255,255,255,.08)");
-      sea.addColorStop(1, "rgba(95,65,41,.10)");
+      sea.addColorStop(0, "rgba(255,255,255,.24)");
+      sea.addColorStop(0.5, "rgba(5,68,100,.12)");
+      sea.addColorStop(1, "rgba(5,68,100,.26)");
       ctx.fillStyle = sea;
       ctx.fillRect(0, 0, width, height);
 
@@ -516,7 +555,7 @@
         ctx.beginPath();
         ctx.moveTo(-28, y);
         ctx.bezierCurveTo(width * 0.24, y + 20, width * 0.58, y - 20, width + 32, y + 14);
-        ctx.strokeStyle = "rgba(255,255,255,.54)";
+        ctx.strokeStyle = "rgba(255,255,255,.62)";
         ctx.lineWidth = 1.05;
         ctx.stroke();
       }
@@ -537,7 +576,7 @@
       ctx.font = "900 12px Montserrat, Inter, sans-serif";
       ctx.fillText("RASPE AQUI", width / 2, height - 34);
 
-      ctx.fillStyle = "rgba(5,68,100,.58)";
+      ctx.fillStyle = "rgba(5,68,100,.68)";
       ctx.font = "700 10.5px Montserrat, Inter, sans-serif";
       ctx.fillText("para revelar seu bônus", width / 2, height - 18);
     }
@@ -552,7 +591,7 @@
       drawRoundRect(panelX, panelY, panelWidth, panelHeight, 18);
       ctx.fillStyle = "rgba(255,253,248,.42)";
       ctx.fill();
-      ctx.strokeStyle = "rgba(200,167,106,.26)";
+      ctx.strokeStyle = "rgba(5,68,100,.18)";
       ctx.lineWidth = 1;
       ctx.stroke();
 
@@ -624,7 +663,7 @@
     }
 
     function getPoint(event) {
-      const rect = canvas.getBoundingClientRect();
+      const rect = scratchRect || canvas.getBoundingClientRect();
       return {
         x: event.clientX - rect.left,
         y: event.clientY - rect.top,
@@ -634,7 +673,7 @@
     }
 
     function scratchAt(point) {
-      const brush = Math.max(26, Math.min(36, canvas.getBoundingClientRect().width * 0.085));
+      const brush = brushSize;
       ctx.globalCompositeOperation = "destination-out";
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
@@ -670,8 +709,40 @@
     }
 
     function updateProgress(value) {
-      if (progressFill) progressFill.style.width = `${value}%`;
+      if (progressFill) progressFill.style.transform = `scaleX(${Math.max(0, Math.min(100, value)) / 100})`;
       if (progressText) progressText.textContent = `${value}%`;
+    }
+
+    function checkProgress() {
+      if (revealed) return 100;
+      const progress = calculateProgress();
+      updateProgress(progress);
+      if (progress >= revealAt) revealBonus();
+      return progress;
+    }
+
+    function scheduleProgressCheck(force = false) {
+      if (revealed) return;
+
+      const interval = shouldReduceBonusMotion() ? 120 : 80;
+      const now = performance.now();
+      const elapsed = now - lastProgressCheck;
+
+      if (force || elapsed >= interval) {
+        window.clearTimeout(progressTimer);
+        progressTimer = null;
+        lastProgressCheck = now;
+        checkProgress();
+        return;
+      }
+
+      if (!progressTimer) {
+        progressTimer = window.setTimeout(() => {
+          progressTimer = null;
+          lastProgressCheck = performance.now();
+          checkProgress();
+        }, interval - elapsed);
+      }
     }
 
     function revealBonus() {
@@ -682,6 +753,30 @@
       updateProgress(100);
       launchConfetti();
       showToast("Bônus de R$ 200 revelado");
+    }
+
+    function getFocusableElements() {
+      return Array.from(
+        dialog.querySelectorAll("a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex='-1'])")
+      ).filter((element) => !element.hasAttribute("disabled") && element.getAttribute("aria-hidden") !== "true");
+    }
+
+    function trapFocus(event) {
+      if (event.key !== "Tab" || !popup.classList.contains("is-active")) return;
+
+      const focusable = getFocusableElements();
+      if (!focusable.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
 
     function handleStart(event) {
@@ -697,9 +792,7 @@
       if (!isDrawing || revealed) return;
       event.preventDefault();
       scratchAt(getPoint(event));
-      const progress = calculateProgress();
-      updateProgress(progress);
-      if (progress >= revealAt) revealBonus();
+      scheduleProgressCheck();
     }
 
     function handleEnd(event) {
@@ -707,12 +800,12 @@
       isDrawing = false;
       lastPoint = null;
       canvas.releasePointerCapture?.(event.pointerId);
-      const progress = calculateProgress();
-      updateProgress(progress);
-      if (progress >= revealAt) revealBonus();
+      scheduleProgressCheck(true);
     }
 
     function createSpark(x, y) {
+      if (shouldReduceBonusMotion()) return;
+
       const spark = document.createElement("span");
       spark.className = "bonus-popup__spark";
       spark.style.left = `${x}px`;
@@ -724,9 +817,12 @@
     }
 
     function launchConfetti() {
-      const colors = ["#054464", "#5F4129", "#BC9C7C", "#C8A76A", "#EDECEB"];
+      if (reducedMotionQuery?.matches) return;
 
-      for (let i = 0; i < 54; i++) {
+      const colors = ["#054464", "#5F4129", "#BC9C7C", "#C8A76A", "#EDECEB"];
+      const count = shouldReduceBonusMotion() ? 14 : 54;
+
+      for (let i = 0; i < count; i++) {
         const piece = document.createElement("span");
         piece.className = "bonus-popup__confetti";
         piece.style.left = `${Math.random() * 100}vw`;
@@ -768,10 +864,20 @@
       if (event.target === popup) closePopup();
     });
     window.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && popup.classList.contains("is-active")) closePopup();
+      if (!popup.classList.contains("is-active")) return;
+      if (event.key === "Escape") closePopup();
+      trapFocus(event);
+    });
+    canvas.addEventListener("keydown", (event) => {
+      if ((event.key === "Enter" || event.key === " ") && !revealed) {
+        event.preventDefault();
+        revealBonus();
+      }
     });
     window.addEventListener("resize", () => {
-      if (popup.classList.contains("is-active")) setupScratch();
+      if (!popup.classList.contains("is-active")) return;
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(setupScratch, shouldReduceBonusMotion() ? 180 : 120);
     });
     coverLogo.addEventListener("load", () => {
       if (popup.classList.contains("is-active")) setupScratch();
