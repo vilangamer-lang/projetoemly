@@ -66,7 +66,7 @@ async function fetchPatient(lookupKey) {
   }
 }
 
-function applyState(profile) {
+function applyState(profile, options = {}) {
   const data = window.EClub.renderPatientProfile(document, profile, {
     archived: Boolean(profile?.is_archived)
   });
@@ -83,6 +83,14 @@ function applyState(profile) {
   }
 
   document.body.classList.add("is-patient-ready");
+
+  if (options.enableBonus) {
+    window.EClub.setupBonusForPatient?.({
+      lookupKey: options.lookupKey,
+      patient: options.patient,
+      profile
+    });
+  }
 }
 
 async function setupPublicPatientPage() {
@@ -112,14 +120,22 @@ async function setupPublicPatientPage() {
         ...result.payload.profile,
         is_archived: Boolean(result.payload.patient?.is_archived)
       };
-      applyState(profile);
+      applyState(profile, {
+        enableBonus: true,
+        lookupKey,
+        patient: result.payload.patient
+      });
       return;
     }
 
     if (result.status === 404) {
       if (lookupKey.toLowerCase() === "demo") {
         const profile = window.EClub.createDefaultProfile("Assinatura demo", { demo: true });
-        applyState(profile);
+        applyState(profile, {
+          enableBonus: true,
+          lookupKey,
+          patient: { slug: "demo" }
+        });
         setBanner("Exibindo a página de demonstração.", "neutral");
         return;
       }
@@ -132,7 +148,11 @@ async function setupPublicPatientPage() {
 
     if (lookupKey.toLowerCase() === "demo") {
       const profile = window.EClub.createDefaultProfile("Assinatura demo", { demo: true });
-      applyState(profile);
+      applyState(profile, {
+        enableBonus: true,
+        lookupKey,
+        patient: { slug: "demo" }
+      });
       setBanner("O banco não respondeu. Exibindo a demonstração local.", "warning");
       return;
     }
@@ -143,7 +163,11 @@ async function setupPublicPatientPage() {
   } catch {
     if (lookupKey.toLowerCase() === "demo") {
       const profile = window.EClub.createDefaultProfile("Assinatura demo", { demo: true });
-      applyState(profile);
+      applyState(profile, {
+        enableBonus: true,
+        lookupKey,
+        patient: { slug: "demo" }
+      });
       setBanner("O banco não respondeu. Exibindo a demonstração local.", "warning");
       return;
     }

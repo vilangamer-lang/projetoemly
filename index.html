@@ -510,7 +510,7 @@
       data-bonus-open-delay="3000"
       data-bonus-coupon="EMLYN200"
       data-bonus-reveal-at="64"
-      data-bonus-logo="/assets/brandbook/emlyn-logo-lockup-blue-transparent.png"
+      data-bonus-valid-days="60"
       aria-hidden="true"
     >
       <section class="bonus-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="bonus-popup-title">
@@ -525,50 +525,32 @@
             decoding="async"
           />
 
-          <div class="bonus-popup__tag">Presente especial</div>
-          <h2 class="bonus-popup__title" id="bonus-popup-title">Raspe e revele seu bônus</h2>
-          <p class="bonus-popup__subtitle">Um carinho para o seu próximo momento de autocuidado.</p>
+          <div class="bonus-popup__tag">Condição exclusiva E-Club</div>
+          <h2 class="bonus-popup__title" id="bonus-popup-title">Seu bônus de R$ 200 está disponível</h2>
+          <p class="bonus-popup__subtitle">Ative o cupom para usar no seu próximo cuidado com a Dra. Emlyn.</p>
 
           <div class="bonus-popup__scratch-wrap">
             <div class="bonus-popup__scratch-card" data-bonus-card>
               <div class="bonus-popup__content" aria-live="polite">
                 <div>
-                  <div class="bonus-popup__shell" aria-hidden="true">
-                    <svg width="26" height="26" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M32 53C27.5 43.5 21.6 31.8 10 24.5C13.2 17.6 21.9 15.2 28.3 22.1C29.3 13.9 36.7 13.9 37.7 22.1C44.1 15.2 52.8 17.6 56 24.5C44.4 31.8 38.5 43.5 34 53H32Z" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                      <path d="M32 53V20M32 53L22 25M34 53L42 25M32 53L13 26M34 53L52 26" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
-                      <circle cx="32" cy="53" r="3" fill="currentColor" />
-                    </svg>
-                  </div>
-                  <div class="bonus-popup__bonus-label">Bônus liberado</div>
+                  <div class="bonus-popup__bonus-label">Cupom liberado</div>
                   <div class="bonus-popup__bonus-value">R$ 200</div>
-                  <div class="bonus-popup__bonus-caption">para usar no seu próximo cuidado</div>
+                  <div class="bonus-popup__bonus-caption">válido por 60 dias após a ativação</div>
                 </div>
               </div>
 
-              <canvas class="bonus-popup__canvas" data-bonus-canvas aria-label="Área para raspar o bônus"></canvas>
-              <div class="bonus-popup__motion" aria-hidden="true">
-                <span class="bonus-popup__cover-dot bonus-popup__cover-dot--one"></span>
-                <span class="bonus-popup__cover-dot bonus-popup__cover-dot--two"></span>
-                <span class="bonus-popup__cover-dot bonus-popup__cover-dot--three"></span>
-              </div>
-            </div>
-
-            <div class="bonus-popup__progress" aria-hidden="true">
-              <div class="bonus-popup__progress-track"><div class="bonus-popup__progress-fill" data-bonus-progress-fill></div></div>
-              <div class="bonus-popup__progress-text" data-bonus-progress-text>0%</div>
+              <canvas class="bonus-popup__canvas" data-bonus-canvas aria-label="Área para liberar o cupom"></canvas>
             </div>
           </div>
 
           <div class="bonus-popup__actions">
-            <button class="bonus-popup__cta" type="button" data-bonus-redeem disabled>Resgatar bônus de R$ 200</button>
+            <button class="bonus-popup__cta" type="button" data-bonus-redeem disabled>Ativar cupom EMLYN200</button>
             <div class="bonus-popup__mini-actions">
-              <button class="bonus-popup__mini-button" type="button" data-bonus-copy>Copiar cupom</button>
-              <button class="bonus-popup__mini-button" type="button" data-bonus-reset>Raspar de novo</button>
+              <button class="bonus-popup__mini-button" type="button" data-bonus-copy>Copiar código</button>
             </div>
           </div>
 
-          <p class="bonus-popup__fineprint">Cupom: <strong>EMLYN200</strong> · válido conforme regras da campanha.</p>
+          <p class="bonus-popup__fineprint">Cupom <strong>EMLYN200</strong> válido por 60 dias após a ativação. Aplicável a procedimento elegível, conforme agenda e condições da campanha.</p>
         </div>
       </section>
 

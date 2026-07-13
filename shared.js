@@ -431,6 +431,181 @@
     return navigator.clipboard.writeText(String(value || ""));
   }
 
+  const BONUS_STORAGE_PREFIX = "eclub:bonus:v1";
+  const BONUS_DAY_MS = 24 * 60 * 60 * 1000;
+  let bonusPatientContext = null;
+  const bonusPopupHydrators = new Set();
+
+  function getBonusStorage() {
+    try {
+      const key = "__emlyn_bonus_storage_test__";
+      window.localStorage.setItem(key, "1");
+      window.localStorage.removeItem(key);
+      return window.localStorage;
+    } catch {
+      return null;
+    }
+  }
+
+  function normalizeBonusKeyPart(value) {
+    return slugify(value || "visitante");
+  }
+
+  function readBonusLookupFromLocation() {
+    const params = new URLSearchParams(window.location.search);
+    const paramValue = params.get("slug") || params.get("key") || params.get("id") || params.get("paciente");
+    if (paramValue) return paramValue;
+
+    const pathParts = window.location.pathname.split("/").filter(Boolean);
+    if (!pathParts.length) return "visitante";
+    if (["p", "paciente", "pacientes", "assinatura"].includes(pathParts[0])) {
+      return pathParts[1] || pathParts[0];
+    }
+    return pathParts[pathParts.length - 1] || "visitante";
+  }
+
+  function resolveBonusPersonKey(context = {}) {
+    return normalizeBonusKeyPart(
+      context.personKey ||
+        context.patient?.id ||
+        context.patient?.slug ||
+        context.profile?.id ||
+        context.profile?.slug ||
+        context.profile?.code ||
+        context.lookupKey ||
+        readBonusLookupFromLocation()
+    );
+  }
+
+  function getBonusStorageKey(coupon, personKey) {
+    return `${BONUS_STORAGE_PREFIX}:${normalizeBonusKeyPart(coupon)}:${resolveBonusPersonKey({ personKey })}`;
+  }
+
+  function readBonusState(storage, storageKey) {
+    if (!storage || !storageKey) return {};
+    try {
+      const value = storage.getItem(storageKey);
+      return value ? JSON.parse(value) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function writeBonusState(storage, storageKey, state) {
+    if (!storage || !storageKey) return state;
+    try {
+      storage.setItem(storageKey, JSON.stringify(state));
+    } catch {
+      // localStorage can be unavailable or full; the popup still works for the current view.
+    }
+    return state;
+  }
+
+  function parseBonusTimestamp(value) {
+    const time = Date.parse(value || "");
+    return Number.isFinite(time) ? time : 0;
+  }
+
+  function formatBonusCountdown(expiresAt, now = Date.now()) {
+    const expiresTime = parseBonusTimestamp(expiresAt);
+    if (!expiresTime || expiresTime <= now) return "O prazo deste cupom terminou";
+
+    const remaining = expiresTime - now;
+    const days = Math.floor(remaining / BONUS_DAY_MS);
+    const hours = Math.floor((remaining % BONUS_DAY_MS) / (60 * 60 * 1000));
+
+    if (days > 0) {
+      return `Expira em ${days} ${days === 1 ? "dia" : "dias"} e ${hours} ${hours === 1 ? "hora" : "horas"}`;
+    }
+
+    return hours > 0 ? `Expira em ${hours} ${hours === 1 ? "hora" : "horas"}` : "Expira em menos de 1 hora";
+  }
+
+  function renderBonusCard(card, state, coupon) {
+    if (!card) return;
+
+    const title = card.querySelector("[data-bonus-card-title]");
+    const status = card.querySelector("[data-bonus-card-status]");
+    const description = card.querySelector("[data-bonus-card-description]");
+    const code = card.querySelector("[data-bonus-card-code]");
+    const countdown = card.querySelector("[data-bonus-countdown]");
+    const button = card.querySelector("[data-bonus-copy-persistent]");
+    const expiresTime = parseBonusTimestamp(state?.expiresAt);
+    const isClaimed = Boolean(state?.claimedAt && expiresTime);
+    const isExpired = isClaimed && expiresTime <= Date.now();
+
+    if (!isClaimed) {
+      card.classList.add("hidden");
+      card.dataset.bonusState = "inactive";
+      return;
+    }
+
+    card.classList.remove("hidden");
+    card.dataset.bonusState = isExpired ? "expired" : "active";
+    if (status) status.textContent = isExpired ? "Cupom encerrado" : "Cupom ativo";
+    if (title) title.textContent = isExpired ? "O prazo deste cupom terminou" : "R$ 200 disponíveis no E-Club";
+    if (description) {
+      description.textContent = isExpired
+        ? "Fale com a clínica para verificar as condições disponíveis no momento."
+        : `Use o código ${coupon} no agendamento do próximo cuidado elegível.`;
+    }
+    if (code) code.textContent = coupon;
+    if (countdown) countdown.textContent = formatBonusCountdown(state.expiresAt);
+    if (button) {
+      button.disabled = isExpired;
+      button.textContent = isExpired ? "Cupom expirado" : "Copiar cupom";
+    }
+  }
+
+  function setupBonusPersistentCards(context = {}) {
+    const cards = Array.from(document.querySelectorAll("[data-bonus-persistent]"));
+    if (!cards.length) return;
+
+    const coupon = context.coupon || document.querySelector("[data-bonus-popup]")?.dataset.bonusCoupon || "EMLYN200";
+    const personKey = resolveBonusPersonKey(context);
+    const storage = getBonusStorage();
+    const storageKey = getBonusStorageKey(coupon, personKey);
+
+    cards.forEach((card) => {
+      const render = () => renderBonusCard(card, readBonusState(storage, storageKey), coupon);
+      const copyButton = card.querySelector("[data-bonus-copy-persistent]");
+
+      if (card._bonusCountdownTimer) {
+        window.clearInterval(card._bonusCountdownTimer);
+      }
+
+      card.dataset.bonusStorageKey = storageKey;
+      card._bonusCountdownTimer = window.setInterval(render, 60 * 1000);
+      render();
+
+      if (copyButton && copyButton.dataset.bonusCopyReady !== "true") {
+        copyButton.dataset.bonusCopyReady = "true";
+        copyButton.addEventListener("click", async () => {
+          const originalText = copyButton.textContent;
+          try {
+            if (!navigator.clipboard) throw new Error("Clipboard API unavailable");
+            await navigator.clipboard.writeText(coupon);
+            copyButton.textContent = "Cupom copiado";
+          } catch {
+            copyButton.textContent = coupon;
+          }
+          window.setTimeout(() => {
+            copyButton.textContent = originalText || "Copiar cupom";
+          }, 1600);
+        });
+      }
+    });
+  }
+
+  function setupBonusForPatient(context = {}) {
+    bonusPatientContext = {
+      ...context,
+      personKey: resolveBonusPersonKey(context)
+    };
+    setupBonusPersistentCards(bonusPatientContext);
+    bonusPopupHydrators.forEach((hydrate) => hydrate(bonusPatientContext));
+  }
+
   function setupBonusPopups() {
     document.querySelectorAll("[data-bonus-popup]").forEach((popup) => setupBonusPopup(popup));
   }
@@ -459,15 +634,15 @@
     const coupon = popup.dataset.bonusCoupon || "EMLYN200";
     const revealAt = Number.parseInt(popup.dataset.bonusRevealAt || "", 10) || 64;
     const openDelay = Number.parseInt(popup.dataset.bonusOpenDelay || "", 10);
+    const validDays = Number.parseInt(popup.dataset.bonusValidDays || "", 10) || 60;
     const delay = Number.isFinite(openDelay) ? openDelay : 3000;
-    const coverLogo = new Image();
-    coverLogo.src = popup.dataset.bonusLogo || "/assets/brandbook/emlyn-logo-lockup-blue-transparent.png";
+    const storage = getBonusStorage();
+    const requiresPatientContext = document.body?.dataset.page === "patient";
 
     let previousBodyOverflow = "";
     let isDrawing = false;
     let lastPoint = null;
     let revealed = false;
-    let particleTick = 0;
     let toastTimer = null;
     let previouslyFocused = null;
     let scratchRect = null;
@@ -475,12 +650,17 @@
     let progressTimer = null;
     let lastProgressCheck = 0;
     let resizeTimer = null;
+    let autoOpenTimer = null;
+    let currentPersonKey = "";
+    let storageKey = "";
+    let state = {};
+    let hasBonusContext = false;
     const reducedMotionQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
     const coarsePointerQuery = window.matchMedia?.("(pointer: coarse)");
 
     canvas.setAttribute("tabindex", "0");
     canvas.setAttribute("role", "button");
-    canvas.setAttribute("aria-label", "Raspar ou pressionar Enter para revelar o bônus");
+    canvas.setAttribute("aria-label", "Deslizar ou pressionar Enter para liberar o cupom");
 
     function shouldReduceBonusMotion() {
       return Boolean(
@@ -490,10 +670,76 @@
       );
     }
 
+    function readCurrentBonusState() {
+      state = storage ? readBonusState(storage, storageKey) : state;
+      return state || {};
+    }
+
+    function saveBonusState(patch) {
+      if (!storageKey) return state;
+
+      const now = new Date().toISOString();
+      state = {
+        ...readCurrentBonusState(),
+        version: 1,
+        coupon,
+        personKey: currentPersonKey || resolveBonusPersonKey({}),
+        updatedAt: now,
+        ...patch
+      };
+      return writeBonusState(storage, storageKey, state);
+    }
+
+    function markPopupSeen(reason) {
+      if (!storageKey) return;
+      const current = readCurrentBonusState();
+      const now = new Date().toISOString();
+      const patch = {
+        lastPopupAction: reason,
+        lastSeenAt: now
+      };
+
+      if (!current.popupSeenAt) {
+        patch.popupSeenAt = now;
+        patch.status = current.claimedAt ? "claimed" : "seen";
+      }
+
+      saveBonusState(patch);
+    }
+
+    function shouldAutoOpen() {
+      if (requiresPatientContext && !hasBonusContext) return false;
+      const current = readCurrentBonusState();
+      return !current.popupSeenAt && !current.claimedAt && current.status !== "seen" && current.status !== "claimed";
+    }
+
+    function scheduleAutoOpen() {
+      if (autoOpenTimer || !shouldAutoOpen()) return;
+      autoOpenTimer = window.setTimeout(() => {
+        autoOpenTimer = null;
+        if (shouldAutoOpen()) openPopup();
+      }, delay);
+    }
+
+    function hydrateBonusContext(context = {}) {
+      currentPersonKey = resolveBonusPersonKey(context);
+      storageKey = getBonusStorageKey(coupon, currentPersonKey);
+      hasBonusContext = true;
+      state = readCurrentBonusState();
+      setupBonusPersistentCards({
+        ...context,
+        coupon,
+        personKey: currentPersonKey
+      });
+      scheduleAutoOpen();
+    }
+
     function openPopup() {
+      if (requiresPatientContext && !hasBonusContext) return;
       if (popup.classList.contains("is-active")) return;
       previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       previousBodyOverflow = document.body.style.overflow;
+      markPopupSeen("opened");
       popup.classList.add("is-active");
       popup.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
@@ -505,6 +751,12 @@
       popup.classList.remove("is-active");
       popup.setAttribute("aria-hidden", "true");
       document.body.style.overflow = previousBodyOverflow;
+      if (storageKey) {
+        saveBonusState({
+          lastClosedAt: new Date().toISOString(),
+          lastPopupAction: "closed"
+        });
+      }
       previouslyFocused?.focus?.();
     }
 
@@ -569,19 +821,19 @@
       ctx.fillRect(0, 0, width, height);
       ctx.globalAlpha = 1;
 
-      drawCoverLogo(width, height);
+      drawCoverSeal(width, height);
 
       ctx.textAlign = "center";
       ctx.fillStyle = "#054464";
-      ctx.font = "900 12px Montserrat, Inter, sans-serif";
-      ctx.fillText("RASPE AQUI", width / 2, height - 34);
+      ctx.font = "900 11px Montserrat, Inter, sans-serif";
+      ctx.fillText("DESLIZE PARA LIBERAR", width / 2, height - 34);
 
       ctx.fillStyle = "rgba(5,68,100,.68)";
       ctx.font = "700 10.5px Montserrat, Inter, sans-serif";
-      ctx.fillText("para revelar seu bônus", width / 2, height - 18);
+      ctx.fillText("condição exclusiva E-Club", width / 2, height - 18);
     }
 
-    function drawCoverLogo(width, height) {
+    function drawCoverSeal(width, height) {
       const panelWidth = Math.min(width * 0.72, 235);
       const panelHeight = Math.min(height * 0.66, 112);
       const panelX = (width - panelWidth) / 2;
@@ -595,21 +847,18 @@
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      if (coverLogo.complete && coverLogo.naturalWidth) {
-        const maxWidth = panelWidth * 0.78;
-        const maxHeight = panelHeight * 0.86;
-        const scale = Math.min(maxWidth / coverLogo.naturalWidth, maxHeight / coverLogo.naturalHeight);
-        const logoWidth = coverLogo.naturalWidth * scale;
-        const logoHeight = coverLogo.naturalHeight * scale;
-        const x = (width - logoWidth) / 2;
-        const y = panelY + (panelHeight - logoHeight) / 2;
-        ctx.shadowColor = "rgba(5,68,100,.18)";
-        ctx.shadowBlur = 12;
-        ctx.shadowOffsetY = 5;
-        ctx.drawImage(coverLogo, x, y, logoWidth, logoHeight);
-      } else {
-        drawShellIcon(width / 2, panelY + panelHeight / 2 - 10);
-      }
+      ctx.textAlign = "center";
+      ctx.fillStyle = "rgba(5,68,100,.7)";
+      ctx.font = "800 11px Montserrat, Inter, sans-serif";
+      ctx.fillText("E-CLUB", width / 2, panelY + 31);
+
+      ctx.fillStyle = "#054464";
+      ctx.font = "900 34px Montserrat, Inter, sans-serif";
+      ctx.fillText("R$ 200", width / 2, panelY + 70);
+
+      ctx.fillStyle = "rgba(5,68,100,.62)";
+      ctx.font = "700 10px Montserrat, Inter, sans-serif";
+      ctx.fillText("CONDIÇÃO DISPONÍVEL", width / 2, panelY + 94);
 
       ctx.restore();
     }
@@ -690,9 +939,6 @@
       ctx.arc(point.x, point.y, brush / 2, 0, Math.PI * 2);
       ctx.fill();
       lastPoint = point;
-
-      particleTick++;
-      if (particleTick % 3 === 0) createSpark(point.clientX, point.clientY);
     }
 
     function calculateProgress() {
@@ -751,8 +997,12 @@
       dialog.classList.add("is-revealed");
       if (redeemButton) redeemButton.disabled = false;
       updateProgress(100);
-      launchConfetti();
-      showToast("Bônus de R$ 200 revelado");
+      saveBonusState({
+        revealedAt: new Date().toISOString(),
+        status: "revealed"
+      });
+      finishRevealEffect();
+      showToast(`Cupom ${coupon} liberado`);
     }
 
     function getFocusableElements() {
@@ -803,47 +1053,41 @@
       scheduleProgressCheck(true);
     }
 
-    function createSpark(x, y) {
-      if (shouldReduceBonusMotion()) return;
-
-      const spark = document.createElement("span");
-      spark.className = "bonus-popup__spark";
-      spark.style.left = `${x}px`;
-      spark.style.top = `${y}px`;
-      spark.style.setProperty("--bonus-spark-x", `${Math.random() * 54 - 27}px`);
-      spark.style.setProperty("--bonus-spark-y", `${Math.random() * 54 - 27}px`);
-      document.body.appendChild(spark);
-      window.setTimeout(() => spark.remove(), 700);
+    function finishRevealEffect() {
+      return;
     }
 
-    function launchConfetti() {
-      if (reducedMotionQuery?.matches) return;
-
-      const colors = ["#054464", "#5F4129", "#BC9C7C", "#C8A76A", "#EDECEB"];
-      const count = shouldReduceBonusMotion() ? 14 : 54;
-
-      for (let i = 0; i < count; i++) {
-        const piece = document.createElement("span");
-        piece.className = "bonus-popup__confetti";
-        piece.style.left = `${Math.random() * 100}vw`;
-        piece.style.setProperty("--bonus-confetti-color", colors[Math.floor(Math.random() * colors.length)]);
-        piece.style.setProperty("--bonus-confetti-x", `${Math.random() * 240 - 120}px`);
-        piece.style.setProperty("--bonus-confetti-rotation", `${Math.random() * 720 - 360}deg`);
-        piece.style.setProperty("--bonus-confetti-duration", `${1.8 + Math.random() * 1.2}s`);
-        piece.style.animationDelay = `${Math.random() * 0.22}s`;
-        document.body.appendChild(piece);
-        window.setTimeout(() => piece.remove(), 3400);
-      }
-    }
-
-    async function copyCoupon() {
+    async function copyCoupon(successMessage = `Cupom copiado: ${coupon}`) {
       try {
         if (!navigator.clipboard) throw new Error("Clipboard API unavailable");
         await navigator.clipboard.writeText(coupon);
-        showToast(`Cupom copiado: ${coupon}`);
+        showToast(successMessage);
       } catch {
         showToast(`Cupom: ${coupon}`);
       }
+    }
+
+    function claimCoupon() {
+      const current = readCurrentBonusState();
+      const now = Date.now();
+      const nowIso = new Date(now).toISOString();
+      const activeExpiresAt = parseBonusTimestamp(current.expiresAt) > now ? current.expiresAt : "";
+      const expiresAt = activeExpiresAt || new Date(now + validDays * BONUS_DAY_MS).toISOString();
+
+      saveBonusState({
+        claimedAt: current.claimedAt || nowIso,
+        activatedAt: current.activatedAt || nowIso,
+        expiresAt,
+        validDays,
+        status: "claimed"
+      });
+      setupBonusPersistentCards({
+        ...(bonusPatientContext || {}),
+        coupon,
+        personKey: currentPersonKey
+      });
+      void copyCoupon(`Cupom ${coupon} ativado e copiado`);
+      window.setTimeout(closePopup, 850);
     }
 
     function showToast(message) {
@@ -879,17 +1123,21 @@
       window.clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(setupScratch, shouldReduceBonusMotion() ? 180 : 120);
     });
-    coverLogo.addEventListener("load", () => {
-      if (popup.classList.contains("is-active")) setupScratch();
-    });
     resetButton?.addEventListener("click", setupScratch);
-    copyButton?.addEventListener("click", copyCoupon);
-    redeemButton?.addEventListener("click", () => {
+    copyButton?.addEventListener("click", () => {
       void copyCoupon();
-      showToast("Bônus de R$ 200 pronto para resgate");
     });
+    redeemButton?.addEventListener("click", claimCoupon);
 
-    window.setTimeout(openPopup, delay);
+    bonusPopupHydrators.add(hydrateBonusContext);
+    if (requiresPatientContext) {
+      if (bonusPatientContext) hydrateBonusContext(bonusPatientContext);
+    } else {
+      hydrateBonusContext({
+        coupon,
+        personKey: document.body?.dataset.page || "admin"
+      });
+    }
   }
 
   if (document.readyState === "loading") {
@@ -919,6 +1167,7 @@
     renderPatientProfile,
     buildPublicLink,
     copyText,
-    setupBonusPopups
+    setupBonusPopups,
+    setupBonusForPatient
   };
 })();
