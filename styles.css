@@ -136,11 +136,11 @@ body[data-page="patient"] .brand__copy {
 }
 
 body[data-page="patient"] .brand__lockup {
-  width: min(210px, 58vw);
+  width: min(188px, 56vw);
 }
 
 body[data-page="patient"] .brand__lockup img {
-  max-height: 70px;
+  max-height: 64px;
   object-fit: contain;
 }
 
@@ -163,7 +163,7 @@ body[data-page="patient"] .footer__brand {
 }
 
 body[data-page="patient"] .footer__logo {
-  width: min(280px, 72vw);
+  width: min(320px, 76vw);
   height: auto;
   display: block;
 }
@@ -3274,7 +3274,7 @@ body[data-page="patient"] .bonus-popup__brand-row {
 }
 
 body[data-page="patient"] .bonus-popup__brand {
-  width: min(248px, 72vw);
+  width: min(252px, 72vw);
   max-width: 100%;
   margin: 0;
   filter: drop-shadow(0 10px 18px rgba(0, 11, 18, 0.22));
@@ -3617,11 +3617,11 @@ body[data-page="patient"] .bonus-popup__fineprint-icon svg {
   }
 
   body[data-page="patient"] .brand__lockup {
-    width: min(158px, 58vw);
+    width: min(142px, 54vw);
   }
 
   body[data-page="patient"] .brand__lockup img {
-    max-height: 58px;
+    max-height: 54px;
   }
 
   body[data-page="patient"] .hero--patient {
@@ -3808,7 +3808,7 @@ body[data-page="patient"] .bonus-popup__fineprint-icon svg {
 
   body[data-page="patient"] .footer__logo {
     display: block;
-    width: min(230px, 72vw);
+    width: min(270px, 76vw);
   }
 
   body[data-page="patient"] .bonus-popup__inner {
@@ -3817,7 +3817,7 @@ body[data-page="patient"] .bonus-popup__fineprint-icon svg {
   }
 
   body[data-page="patient"] .bonus-popup__brand {
-    width: min(214px, 66vw);
+    width: min(226px, 68vw);
   }
 
   body[data-page="patient"] .bonus-popup__tag {
