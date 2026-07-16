@@ -113,13 +113,13 @@
       name,
       initials: getInitials(name),
       greeting: `Bem-vindo à E-Club, ${name}`,
-      status: demo ? "Página de demonstração" : "Online",
+      status: "Online",
       code: demo ? "DEMO" : buildAccessCode(name),
-      subtitle: demo ? "Visualização de demonstração" : "Página individual da paciente",
+      subtitle: "Página individual da paciente",
       access: "Link público da paciente",
       nextSession: demo ? "Seg., 12 mai · 14:30" : `Próxima consulta com ${firstName}`,
       lastReview: demo ? "03 mai" : formatShortDate(lastVisit),
-      focus: "Resumo clínico, agenda e orientações em uma única visão.",
+      focus: "Agenda, revisões e orientações da paciente.",
       appointments: demo
         ? [
             {
@@ -417,7 +417,7 @@
             </a>
           </dd>
         </dl>`,
-      "Sem links cadastrados"
+      "Nenhum material cadastrado"
     );
 
     return data;
@@ -788,31 +788,23 @@
       ctx.clearRect(0, 0, width, height);
 
       const gradient = ctx.createLinearGradient(0, 0, width, height);
-      gradient.addColorStop(0, "#F7FCFC");
-      gradient.addColorStop(0.22, "#DDEFF2");
-      gradient.addColorStop(0.58, "#9FC9D2");
-      gradient.addColorStop(1, "#0B6F85");
+      gradient.addColorStop(0, "rgba(191,228,234,.72)");
+      gradient.addColorStop(0.45, "rgba(11,111,133,.52)");
+      gradient.addColorStop(1, "rgba(3,44,63,.68)");
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 
-      const sea = ctx.createLinearGradient(0, height * 0.15, width, height * 0.9);
-      sea.addColorStop(0, "rgba(255,255,255,.24)");
-      sea.addColorStop(0.5, "rgba(5,68,100,.12)");
-      sea.addColorStop(1, "rgba(5,68,100,.26)");
-      ctx.fillStyle = sea;
-      ctx.fillRect(0, 0, width, height);
-
-      ctx.globalAlpha = 0.38;
+      ctx.globalAlpha = 0.32;
       for (let y = -height; y < height * 2; y += 16) {
         ctx.beginPath();
         ctx.moveTo(-28, y);
         ctx.bezierCurveTo(width * 0.24, y + 20, width * 0.58, y - 20, width + 32, y + 14);
-        ctx.strokeStyle = "rgba(255,255,255,.62)";
+        ctx.strokeStyle = "rgba(255,255,255,.58)";
         ctx.lineWidth = 1.05;
         ctx.stroke();
       }
 
-      ctx.globalAlpha = 0.65;
+      ctx.globalAlpha = 0.42;
       const halo = ctx.createRadialGradient(width * 0.5, height * 0.43, 8, width * 0.5, height * 0.43, Math.max(width, height) * 0.55);
       halo.addColorStop(0, "rgba(255,255,255,.88)");
       halo.addColorStop(0.28, "rgba(255,255,255,.32)");
@@ -821,16 +813,21 @@
       ctx.fillRect(0, 0, width, height);
       ctx.globalAlpha = 1;
 
-      drawCoverSeal(width, height);
+      const badgeWidth = Math.min(width - 42, 220);
+      const badgeHeight = 42;
+      const badgeX = (width - badgeWidth) / 2;
+      const badgeY = Math.max(18, height - 64);
+      drawRoundRect(badgeX, badgeY, badgeWidth, badgeHeight, 999);
+      ctx.fillStyle = "rgba(3,44,63,.72)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(191,228,234,.42)";
+      ctx.lineWidth = 1;
+      ctx.stroke();
 
       ctx.textAlign = "center";
-      ctx.fillStyle = "#054464";
-      ctx.font = "900 11px Montserrat, Inter, sans-serif";
-      ctx.fillText("DESLIZE PARA LIBERAR", width / 2, height - 34);
-
-      ctx.fillStyle = "rgba(5,68,100,.68)";
-      ctx.font = "700 10.5px Montserrat, Inter, sans-serif";
-      ctx.fillText("condição exclusiva E-Club", width / 2, height - 18);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "900 12px Montserrat, Inter, sans-serif";
+      ctx.fillText("RASPE PARA LIBERAR", width / 2, badgeY + 26);
     }
 
     function drawCoverSeal(width, height) {

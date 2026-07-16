@@ -136,7 +136,7 @@ async function setupPublicPatientPage() {
           lookupKey,
           patient: { slug: "demo" }
         });
-        setBanner("Exibindo a página de demonstração.", "neutral");
+        hideBanner();
         return;
       }
 
@@ -153,13 +153,13 @@ async function setupPublicPatientPage() {
         lookupKey,
         patient: { slug: "demo" }
       });
-      setBanner("O banco não respondeu. Exibindo a demonstração local.", "warning");
+      hideBanner();
       return;
     }
 
     const profile = window.EClub.createNotFoundProfile(lookupKey);
     applyState(profile);
-    setBanner(result.payload?.error || "O banco ainda não respondeu. Verifique a conexão.", "warning");
+    setBanner("Não foi possível carregar esta página agora.", "warning");
   } catch {
     if (lookupKey.toLowerCase() === "demo") {
       const profile = window.EClub.createDefaultProfile("Assinatura demo", { demo: true });
@@ -168,7 +168,7 @@ async function setupPublicPatientPage() {
         lookupKey,
         patient: { slug: "demo" }
       });
-      setBanner("O banco não respondeu. Exibindo a demonstração local.", "warning");
+      hideBanner();
       return;
     }
 

@@ -107,11 +107,41 @@ button {
   box-shadow: var(--shadow);
 }
 
+.brand__lockup {
+  display: block;
+  width: min(240px, 60vw);
+  height: auto;
+}
+
+.brand__lockup img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
 body[data-page="patient"] .brand__mark {
   width: 52px;
   height: 58px;
   padding: 4px 5px 7px;
   border-radius: 16px;
+}
+
+body[data-page="patient"] .brand {
+  gap: 10px;
+}
+
+body[data-page="patient"] .brand__copy {
+  display: none;
+}
+
+body[data-page="patient"] .brand__lockup {
+  width: min(210px, 58vw);
+}
+
+body[data-page="patient"] .brand__lockup img {
+  max-height: 70px;
+  object-fit: contain;
 }
 
 body[data-page="patient"] .brand__mark img {
@@ -127,11 +157,13 @@ body[data-page="patient"] .brand:hover .brand__mark img {
 
 body[data-page="patient"] .footer__brand {
   display: grid;
+  justify-items: center;
   gap: 10px;
+  text-align: center;
 }
 
 body[data-page="patient"] .footer__logo {
-  width: min(240px, 100%);
+  width: min(280px, 72vw);
   height: auto;
   display: block;
 }
@@ -1392,6 +1424,18 @@ body[data-page="patient"] .page-state.hidden {
   display: none !important;
 }
 
+.u-visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
 .topbar-actions {
   display: inline-flex;
   align-items: center;
@@ -2392,6 +2436,7 @@ body[data-page="patient"] .page-state.hidden {
 body[data-page="patient"] {
   color: #f5fbfb;
   background: #022232;
+  overflow-x: hidden;
   --patient-glass-strong: rgba(3, 44, 63, 0.78);
   --patient-glass: rgba(5, 68, 100, 0.5);
   --patient-glass-soft: rgba(191, 228, 234, 0.12);
@@ -2550,8 +2595,8 @@ body[data-page="patient"] .panel--deep,
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(circle at 18% 10%, rgba(191, 228, 234, 0.24), transparent 32%),
-    linear-gradient(160deg, rgba(5, 68, 100, 0.98), rgba(3, 44, 63, 0.94));
+    radial-gradient(circle at 18% 10%, rgba(191, 228, 234, 0.16), transparent 32%),
+    linear-gradient(160deg, #054464, #032c3f);
   border-color: rgba(255, 255, 255, 0.22);
   box-shadow: 0 26px 70px rgba(0, 28, 42, 0.24);
 }
@@ -2890,6 +2935,14 @@ body[data-page="patient"] .footer__meta {
   color: rgba(245, 251, 251, 0.74);
 }
 
+body[data-page="patient"] .footer__promo {
+  max-width: 420px;
+  margin: 0;
+  color: rgba(245, 251, 251, 0.84);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
 body[data-page="admin"] {
   background:
     linear-gradient(180deg, rgba(238, 246, 247, 0.94), rgba(249, 247, 242, 0.96)),
@@ -3165,6 +3218,355 @@ body[data-page="patient"] .contact-item__link:focus-visible {
   color: #526c74;
 }
 
+body[data-page="patient"] .site-header__inner {
+  padding: 8px 0;
+}
+
+body[data-page="patient"] .footer__inner {
+  justify-content: center;
+  text-align: center;
+}
+
+body[data-page="patient"] .bonus-popup {
+  width: 100vw;
+  max-width: 100vw;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  background:
+    linear-gradient(180deg, rgba(1, 20, 31, 0.8), rgba(1, 33, 47, 0.72)),
+    url("/assets/brandbook/emlyn-water-reflection-25.jpg") center / cover no-repeat;
+}
+
+body[data-page="patient"] .bonus-popup__dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: min(440px, 100%);
+  max-height: min(94vh, 760px);
+  border-color: rgba(191, 228, 234, 0.26);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(191, 228, 234, 0.16), transparent 36%),
+    linear-gradient(180deg, rgba(5, 43, 61, 0.98), rgba(3, 31, 44, 0.98));
+  box-shadow: 0 32px 94px rgba(0, 11, 18, 0.48);
+  transform: translate(-50%, calc(-50% + 18px)) scale(0.96);
+}
+
+body[data-page="patient"] .bonus-popup.is-active .bonus-popup__dialog {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+body[data-page="patient"] .bonus-popup__dialog::before {
+  background:
+    repeating-linear-gradient(112deg, rgba(255, 255, 255, 0.08) 0 1px, transparent 1px 54px),
+    radial-gradient(circle at 18% 8%, rgba(255, 255, 255, 0.16), transparent 26%);
+  opacity: 0.72;
+}
+
+body[data-page="patient"] .bonus-popup__inner {
+  display: grid;
+  gap: 14px;
+  padding: 20px 18px 18px;
+}
+
+body[data-page="patient"] .bonus-popup__brand-row {
+  display: grid;
+  justify-items: center;
+}
+
+body[data-page="patient"] .bonus-popup__brand {
+  width: min(248px, 72vw);
+  max-width: 100%;
+  margin: 0;
+  filter: drop-shadow(0 10px 18px rgba(0, 11, 18, 0.22));
+}
+
+body[data-page="patient"] .bonus-popup__tag {
+  margin: 0 auto;
+  border-color: rgba(191, 228, 234, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: #d7eef2;
+  padding: 10px 16px;
+  letter-spacing: 0;
+}
+
+body[data-page="patient"] .bonus-popup__tag::before {
+  content: "*";
+  width: auto;
+  height: auto;
+  background: none;
+  box-shadow: none;
+  color: #9bd7e1;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+body[data-page="patient"] .bonus-popup__scratch-wrap {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body[data-page="patient"] .bonus-popup__scratch-card {
+  display: grid;
+  gap: 16px;
+  min-height: 282px;
+  height: auto;
+  padding: 20px 18px 18px;
+  border-color: rgba(191, 228, 234, 0.18);
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(191, 228, 234, 0.14), transparent 28%),
+    linear-gradient(160deg, rgba(5, 61, 84, 0.98), rgba(4, 49, 67, 0.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -22px 40px rgba(0, 0, 0, 0.18),
+    0 18px 38px rgba(0, 11, 18, 0.2);
+}
+
+body[data-page="patient"] .bonus-popup__scratch-card::before {
+  background:
+    repeating-linear-gradient(116deg, rgba(255, 255, 255, 0.1) 0 1px, transparent 1px 42px),
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.24), transparent 48%);
+  opacity: 0.68;
+}
+
+body[data-page="patient"] .bonus-popup__scratch-card::after {
+  background:
+    radial-gradient(circle at 22% 24%, rgba(255, 255, 255, 0.22), transparent 16%),
+    linear-gradient(128deg, transparent 0 44%, rgba(255, 255, 255, 0.16) 50%, transparent 60% 100%);
+  opacity: 0.55;
+}
+
+body[data-page="patient"] .bonus-popup__content {
+  position: relative;
+  z-index: 1;
+  padding: 0;
+}
+
+body[data-page="patient"] .bonus-popup__card-layout {
+  display: grid;
+  grid-template-columns: minmax(94px, 116px) minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(191, 228, 234, 0.14);
+}
+
+body[data-page="patient"] .bonus-popup__card-graphic {
+  width: 116px;
+  height: 116px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(191, 228, 234, 0.26);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 18px 30px rgba(0, 11, 18, 0.18);
+}
+
+body[data-page="patient"] .bonus-popup__card-graphic svg {
+  width: 68px;
+  height: 68px;
+}
+
+body[data-page="patient"] .bonus-popup__card-copy {
+  min-width: 0;
+}
+
+body[data-page="patient"] .bonus-popup__card-kicker {
+  margin: 0 0 4px;
+  color: rgba(191, 228, 234, 0.82);
+  font-size: 0.88rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+body[data-page="patient"] .bonus-popup__bonus-value {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(3.2rem, 4.8rem, 4.9rem);
+  line-height: 0.9;
+  font-weight: 900;
+  text-shadow: 0 18px 34px rgba(0, 11, 18, 0.28);
+}
+
+body[data-page="patient"] .bonus-popup__card-subtitle {
+  margin: 10px 0 0;
+  color: rgba(245, 251, 251, 0.74);
+  font-size: 1.08rem;
+  line-height: 1.25;
+}
+
+body[data-page="patient"] .bonus-popup__card-features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+body[data-page="patient"] .bonus-popup__feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding-right: 12px;
+}
+
+body[data-page="patient"] .bonus-popup__feature + .bonus-popup__feature {
+  border-left: 1px solid rgba(191, 228, 234, 0.12);
+  padding-left: 12px;
+}
+
+body[data-page="patient"] .bonus-popup__feature-icon {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(191, 228, 234, 0.14);
+  color: #bfe4ea;
+}
+
+body[data-page="patient"] .bonus-popup__feature-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+body[data-page="patient"] .bonus-popup__feature-text {
+  min-width: 0;
+  color: #ffffff;
+  font-size: 0.9rem;
+  line-height: 1.25;
+}
+
+body[data-page="patient"] .bonus-popup__info-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 18px 17px;
+  border: 1px solid rgba(191, 228, 234, 0.16);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+body[data-page="patient"] .bonus-popup__info-icon {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(191, 228, 234, 0.14);
+  color: #bfe4ea;
+}
+
+body[data-page="patient"] .bonus-popup__info-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+body[data-page="patient"] .bonus-popup__info-copy {
+  display: grid;
+  gap: 4px;
+  color: rgba(245, 251, 251, 0.76);
+}
+
+body[data-page="patient"] .bonus-popup__info-copy strong {
+  color: #ffffff;
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+body[data-page="patient"] .bonus-popup__info-copy span {
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+body[data-page="patient"] .bonus-popup__actions {
+  display: grid;
+  justify-items: stretch;
+  gap: 12px;
+}
+
+body[data-page="patient"] .bonus-popup__cta {
+  width: 100%;
+  min-height: 74px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 20px;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  border-radius: 20px;
+  background: linear-gradient(135deg, #b9e5ef, #7fc4d6);
+  color: #0a3042;
+  box-shadow: 0 18px 34px rgba(3, 28, 40, 0.28);
+  text-transform: uppercase;
+  letter-spacing: 0;
+  font-size: 0.98rem;
+  font-weight: 900;
+}
+
+body[data-page="patient"] .bonus-popup__cta:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+}
+
+body[data-page="patient"] .bonus-popup__dialog.is-revealed .bonus-popup__cta {
+  opacity: 1;
+}
+
+body[data-page="patient"] .bonus-popup__cta-icon {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+body[data-page="patient"] .bonus-popup__cta-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+body[data-page="patient"] .bonus-popup__cta span:nth-child(2) {
+  min-width: 0;
+}
+
+body[data-page="patient"] .bonus-popup__cta-arrow {
+  margin-left: auto;
+  font-size: 2.4rem;
+  line-height: 1;
+  font-weight: 700;
+}
+
+body[data-page="patient"] .bonus-popup__fineprint {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 372px;
+  margin: 0 auto;
+  color: rgba(245, 251, 251, 0.76);
+  text-align: left;
+}
+
+body[data-page="patient"] .bonus-popup__fineprint-icon {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(191, 228, 234, 0.12);
+  color: #bfe4ea;
+}
+
+body[data-page="patient"] .bonus-popup__fineprint-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
 @media (max-width: 980px) {
   body[data-page="patient"] .hero--patient .hero__grid {
     grid-template-columns: 1fr;
@@ -3201,6 +3603,25 @@ body[data-page="patient"] .contact-item__link:focus-visible {
 
   body[data-page="patient"] .site-header {
     background: rgba(3, 42, 60, 0.78);
+  }
+
+  body[data-page="patient"] .site-header__inner {
+    align-items: center;
+    flex-direction: row;
+    gap: 10px;
+    padding: 6px 0;
+  }
+
+  body[data-page="patient"] .site-header [data-access-chip] {
+    display: none;
+  }
+
+  body[data-page="patient"] .brand__lockup {
+    width: min(158px, 58vw);
+  }
+
+  body[data-page="patient"] .brand__lockup img {
+    max-height: 58px;
   }
 
   body[data-page="patient"] .hero--patient {
@@ -3289,6 +3710,16 @@ body[data-page="patient"] .contact-item__link:focus-visible {
     padding-top: 14px;
   }
 
+  body[data-page="patient"] .timeline-block__head {
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  body[data-page="patient"] .timeline-block__meta {
+    max-width: 100%;
+    white-space: normal;
+  }
+
   body[data-page="patient"] .record {
     padding: 14px;
   }
@@ -3337,6 +3768,27 @@ body[data-page="patient"] .contact-item__link:focus-visible {
     padding: 10px;
   }
 
+  body[data-page="patient"] .bonus-popup {
+    width: 100vw;
+    max-width: 100vw;
+    padding-inline: 10px;
+    justify-items: center;
+  }
+
+  body[data-page="patient"] .bonus-popup__dialog {
+    left: 10px;
+    right: 10px;
+    width: auto;
+    max-width: none;
+    box-sizing: border-box;
+    justify-self: center;
+    transform: translateY(calc(-50% + 18px)) scale(0.96);
+  }
+
+  body[data-page="patient"] .bonus-popup.is-active .bonus-popup__dialog {
+    transform: translateY(-50%) scale(1);
+  }
+
   .bonus-popup__inner {
     padding: 18px 16px 16px;
   }
@@ -3352,6 +3804,107 @@ body[data-page="patient"] .contact-item__link:focus-visible {
 
   body[data-page="patient"] .footer {
     padding: 28px 0 34px;
+  }
+
+  body[data-page="patient"] .footer__logo {
+    display: block;
+    width: min(230px, 72vw);
+  }
+
+  body[data-page="patient"] .bonus-popup__inner {
+    gap: 12px;
+    padding: 18px 14px 16px;
+  }
+
+  body[data-page="patient"] .bonus-popup__brand {
+    width: min(214px, 66vw);
+  }
+
+  body[data-page="patient"] .bonus-popup__tag {
+    padding: 9px 13px;
+    font-size: 0.66rem;
+  }
+
+  body[data-page="patient"] .bonus-popup__scratch-card {
+    min-height: 268px;
+    padding: 16px 14px;
+    border-radius: 24px;
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  body[data-page="patient"] .bonus-popup__card-layout {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    gap: 8px;
+    padding-bottom: 14px;
+    min-width: 0;
+  }
+
+  body[data-page="patient"] .bonus-popup__card-graphic {
+    width: 76px;
+    height: 76px;
+  }
+
+  body[data-page="patient"] .bonus-popup__card-graphic svg {
+    width: 48px;
+    height: 48px;
+  }
+
+  body[data-page="patient"] .bonus-popup__bonus-value {
+    font-size: 2.72rem;
+  }
+
+  body[data-page="patient"] .bonus-popup__card-subtitle {
+    max-width: 230px;
+    font-size: 0.9rem;
+    overflow-wrap: anywhere;
+  }
+
+  body[data-page="patient"] .bonus-popup__card-features {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  body[data-page="patient"] .bonus-popup__feature {
+    padding: 0;
+  }
+
+  body[data-page="patient"] .bonus-popup__feature + .bonus-popup__feature {
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  body[data-page="patient"] .bonus-popup__info-card {
+    padding: 15px;
+    border-radius: 20px;
+    min-width: 0;
+  }
+
+  body[data-page="patient"] .bonus-popup__info-copy,
+  body[data-page="patient"] .bonus-popup__info-copy strong,
+  body[data-page="patient"] .bonus-popup__info-copy span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  body[data-page="patient"] .bonus-popup__info-icon {
+    width: 46px;
+    height: 46px;
+  }
+
+  body[data-page="patient"] .bonus-popup__cta {
+    min-height: 64px;
+    gap: 12px;
+    padding: 0 16px;
+    font-size: 0.86rem;
+  }
+
+  body[data-page="patient"] .bonus-popup__fineprint {
+    max-width: 100%;
+    font-size: 0.88rem;
   }
 
   .preview-root,

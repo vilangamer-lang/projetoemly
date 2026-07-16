@@ -81,13 +81,13 @@ values (
     "name": "Assinatura demo",
     "initials": "ED",
     "greeting": "Bem-vindo à E-Club, Assinatura demo",
-    "status": "Página de demonstração",
+    "status": "Online",
     "code": "DEMO",
-    "subtitle": "Página de demonstração",
+    "subtitle": "Página individual da paciente",
     "access": "Nome completo ou QR",
     "nextSession": "seg., 12 mai · 14:30",
     "lastReview": "03 mai",
-    "focus": "Resumo clínico, agenda e orientações em uma única visão.",
+    "focus": "Agenda, revisões e orientações da paciente.",
     "appointments": [
       {
         "date": "12 mai",
