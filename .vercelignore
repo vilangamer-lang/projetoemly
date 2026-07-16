@@ -1,5 +1,10 @@
 *.pdf
-PROMPT-IA.md
+design/
+docs/
+arquivo/
+supabase/
 scripts/
 __pycache__/
 *.pyc
+README.md
+CLAUDE.md

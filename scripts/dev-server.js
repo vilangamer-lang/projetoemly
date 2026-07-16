@@ -7,6 +7,7 @@ const adminHandler = require("../api/admin");
 const patientHandler = require("../api/patient");
 
 const ROOT = path.resolve(__dirname, "..");
+const PUBLIC_DIR = path.join(ROOT, "public");
 const HOST = process.env.HOST || "0.0.0.0";
 const PORT = Number(process.env.PORT || 4173);
 
@@ -28,8 +29,8 @@ function contentType(filePath) {
 }
 
 function resolveWithinRoot(pathname) {
-  const resolved = path.resolve(ROOT, `.${pathname}`);
-  if (!resolved.startsWith(ROOT)) {
+  const resolved = path.resolve(PUBLIC_DIR, `.${pathname}`);
+  if (!resolved.startsWith(PUBLIC_DIR)) {
     return null;
   }
   return resolved;
@@ -46,7 +47,7 @@ async function pathExists(filePath) {
 
 async function resolveStaticFile(pathname) {
   if (pathname === "/") {
-    return path.join(ROOT, "index.html");
+    return path.join(PUBLIC_DIR, "index.html");
   }
 
   const direct = resolveWithinRoot(pathname);
@@ -134,6 +135,16 @@ const server = http.createServer(async (req, res) => {
 
     const filePath = await resolveStaticFile(rewrittenUrl.pathname);
     if (!filePath) {
+      const notFoundPage = path.join(PUBLIC_DIR, "404.html");
+      if (await pathExists(notFoundPage)) {
+        const body = await fs.readFile(notFoundPage);
+        res.statusCode = 404;
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        res.setHeader("Cache-Control", "no-store");
+        res.setHeader("Content-Length", body.length);
+        res.end(req.method === "HEAD" ? undefined : body);
+        return;
+      }
       res.statusCode = 404;
       res.setHeader("Content-Type", "text/plain; charset=utf-8");
       res.end("Not Found");
@@ -150,5 +161,5 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, HOST, () => {
   console.log(`Dev server running at http://localhost:${PORT}`);
-  console.log(`Serving from ${ROOT}`);
+  console.log(`Serving from ${PUBLIC_DIR}`);
 });

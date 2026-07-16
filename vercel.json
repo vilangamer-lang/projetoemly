@@ -3,7 +3,7 @@
   "framework": null,
   "installCommand": "",
   "buildCommand": "echo 'Static site - no build step'",
-  "outputDirectory": ".",
+  "outputDirectory": "public",
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
