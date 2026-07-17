@@ -289,9 +289,6 @@
     const appointmentsEl = query("[data-profile-appointments]");
     const historyEl = query("[data-profile-history]");
     const proceduresEl = query("[data-profile-procedures]");
-    const notesEl = query("[data-profile-notes]");
-    const contactEl = query("[data-profile-contact]");
-    const linksEl = query("[data-profile-links]");
     const chipEl = query("[data-access-chip]");
     const appointmentCountEls = scope.querySelectorAll ? Array.from(scope.querySelectorAll("[data-profile-appointments-count]")) : [];
     const visitCountEls = scope.querySelectorAll ? Array.from(scope.querySelectorAll("[data-profile-visits-count]")) : [];
@@ -389,35 +386,6 @@
       data.notes,
       (item) => `<li class="note-list__item">${escapeHtml(item)}</li>`,
       "Sem observações cadastradas"
-    );
-
-    renderList(
-      scope,
-      "[data-profile-contact]",
-      data.contact,
-      (item) => `
-        <dl class="contact-item">
-          <dt class="contact-item__label">${escapeHtml(item.label)}</dt>
-          <dd class="contact-item__value">${escapeHtml(item.value)}</dd>
-        </dl>`,
-      "Nenhum contato cadastrado"
-    );
-
-    renderList(
-      scope,
-      "[data-profile-links]",
-      data.links,
-      (item) => `
-        <dl class="contact-item contact-item--link">
-          <dt class="contact-item__label">${escapeHtml(item.label)}</dt>
-          <dd class="contact-item__value">
-            <a class="contact-item__link" href="${escapeHtml(item.url)}" target="_blank" rel="noreferrer">
-              <span>Abrir recurso</span>
-              <span class="contact-item__link-icon" aria-hidden="true">↗</span>
-            </a>
-          </dd>
-        </dl>`,
-      "Nenhum material cadastrado"
     );
 
     return data;
@@ -615,24 +583,15 @@
 
     const dialog = popup.querySelector(".bonus-popup__dialog");
     const closeButton = popup.querySelector("[data-bonus-close]");
-    const canvas = popup.querySelector("[data-bonus-canvas]");
-    const card = popup.querySelector("[data-bonus-card]");
-    const progressFill = popup.querySelector("[data-bonus-progress-fill]");
-    const progressText = popup.querySelector("[data-bonus-progress-text]");
     const redeemButton = popup.querySelector("[data-bonus-redeem]");
-    const resetButton = popup.querySelector("[data-bonus-reset]");
     const copyButton = popup.querySelector("[data-bonus-copy]");
     const toast = popup.querySelector("[data-bonus-toast]");
 
-    if (!dialog || !canvas || !card) return;
-
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    if (!ctx) return;
+    if (!dialog) return;
 
     popup.dataset.bonusReady = "true";
 
     const coupon = popup.dataset.bonusCoupon || "EMLYN200";
-    const revealAt = Number.parseInt(popup.dataset.bonusRevealAt || "", 10) || 64;
     const openDelay = Number.parseInt(popup.dataset.bonusOpenDelay || "", 10);
     const validDays = Number.parseInt(popup.dataset.bonusValidDays || "", 10) || 60;
     const delay = Number.isFinite(openDelay) ? openDelay : 3000;
@@ -640,35 +599,17 @@
     const requiresPatientContext = document.body?.dataset.page === "patient";
 
     let previousBodyOverflow = "";
-    let isDrawing = false;
-    let lastPoint = null;
-    let revealed = false;
     let toastTimer = null;
     let previouslyFocused = null;
-    let scratchRect = null;
-    let brushSize = 28;
-    let progressTimer = null;
-    let lastProgressCheck = 0;
-    let resizeTimer = null;
     let autoOpenTimer = null;
     let currentPersonKey = "";
     let storageKey = "";
     let state = {};
     let hasBonusContext = false;
-    const reducedMotionQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
-    const coarsePointerQuery = window.matchMedia?.("(pointer: coarse)");
 
-    canvas.setAttribute("tabindex", "0");
-    canvas.setAttribute("role", "button");
-    canvas.setAttribute("aria-label", "Deslizar ou pressionar Enter para liberar o cupom");
-
-    function shouldReduceBonusMotion() {
-      return Boolean(
-        reducedMotionQuery?.matches ||
-          coarsePointerQuery?.matches ||
-          window.innerWidth <= 720
-      );
-    }
+    // Popup estático: o benefício já nasce revelado, sem etapa de raspagem.
+    dialog.classList.add("is-revealed");
+    if (redeemButton) redeemButton.disabled = false;
 
     function readCurrentBonusState() {
       state = storage ? readBonusState(storage, storageKey) : state;
@@ -708,7 +649,7 @@
     }
 
     function shouldAutoOpen() {
-      if (requiresPatientContext && !hasBonusContext) return false;
+      if (!requiresPatientContext || !hasBonusContext) return false;
       const current = readCurrentBonusState();
       return !current.popupSeenAt && !current.claimedAt && current.status !== "seen" && current.status !== "claimed";
     }
@@ -743,7 +684,6 @@
       popup.classList.add("is-active");
       popup.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
-      window.setTimeout(() => setupScratch(), 80);
       window.setTimeout(() => closeButton?.focus(), 120);
     }
 
@@ -758,248 +698,6 @@
         });
       }
       previouslyFocused?.focus?.();
-    }
-
-    function setupScratch() {
-      const rect = card.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
-
-      scratchRect = rect;
-      brushSize = Math.max(26, Math.min(36, rect.width * 0.085));
-
-      const dpr = Math.min(window.devicePixelRatio || 1, shouldReduceBonusMotion() ? 1.5 : 2);
-      canvas.width = Math.round(rect.width * dpr);
-      canvas.height = Math.round(rect.height * dpr);
-      canvas.style.width = `${rect.width}px`;
-      canvas.style.height = `${rect.height}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      drawCover(rect.width, rect.height);
-      updateProgress(0);
-      revealed = false;
-      lastProgressCheck = 0;
-      window.clearTimeout(progressTimer);
-      progressTimer = null;
-      dialog.classList.remove("is-revealed");
-      if (redeemButton) redeemButton.disabled = true;
-    }
-
-    function drawCover(width, height) {
-      ctx.globalCompositeOperation = "source-over";
-      ctx.clearRect(0, 0, width, height);
-
-      const gradient = ctx.createLinearGradient(0, 0, width, height);
-      gradient.addColorStop(0, "rgba(191,228,234,.72)");
-      gradient.addColorStop(0.45, "rgba(11,111,133,.52)");
-      gradient.addColorStop(1, "rgba(3,44,63,.68)");
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, width, height);
-
-      ctx.globalAlpha = 0.32;
-      for (let y = -height; y < height * 2; y += 16) {
-        ctx.beginPath();
-        ctx.moveTo(-28, y);
-        ctx.bezierCurveTo(width * 0.24, y + 20, width * 0.58, y - 20, width + 32, y + 14);
-        ctx.strokeStyle = "rgba(255,255,255,.58)";
-        ctx.lineWidth = 1.05;
-        ctx.stroke();
-      }
-
-      ctx.globalAlpha = 0.42;
-      const halo = ctx.createRadialGradient(width * 0.5, height * 0.43, 8, width * 0.5, height * 0.43, Math.max(width, height) * 0.55);
-      halo.addColorStop(0, "rgba(255,255,255,.88)");
-      halo.addColorStop(0.28, "rgba(255,255,255,.32)");
-      halo.addColorStop(1, "rgba(255,255,255,0)");
-      ctx.fillStyle = halo;
-      ctx.fillRect(0, 0, width, height);
-      ctx.globalAlpha = 1;
-
-      const badgeWidth = Math.min(width - 42, 220);
-      const badgeHeight = 42;
-      const badgeX = (width - badgeWidth) / 2;
-      const badgeY = Math.max(18, height - 64);
-      drawRoundRect(badgeX, badgeY, badgeWidth, badgeHeight, 999);
-      ctx.fillStyle = "rgba(3,44,63,.72)";
-      ctx.fill();
-      ctx.strokeStyle = "rgba(191,228,234,.42)";
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      ctx.textAlign = "center";
-      ctx.fillStyle = "#FFFFFF";
-      ctx.font = "900 12px Montserrat, Inter, sans-serif";
-      ctx.fillText("RASPE PARA LIBERAR", width / 2, badgeY + 26);
-    }
-
-    function drawCoverSeal(width, height) {
-      const panelWidth = Math.min(width * 0.72, 235);
-      const panelHeight = Math.min(height * 0.66, 112);
-      const panelX = (width - panelWidth) / 2;
-      const panelY = 10;
-
-      ctx.save();
-      drawRoundRect(panelX, panelY, panelWidth, panelHeight, 18);
-      ctx.fillStyle = "rgba(255,253,248,.42)";
-      ctx.fill();
-      ctx.strokeStyle = "rgba(5,68,100,.18)";
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      ctx.textAlign = "center";
-      ctx.fillStyle = "rgba(5,68,100,.7)";
-      ctx.font = "800 11px Montserrat, Inter, sans-serif";
-      ctx.fillText("E-CLUB", width / 2, panelY + 31);
-
-      ctx.fillStyle = "#054464";
-      ctx.font = "900 34px Montserrat, Inter, sans-serif";
-      ctx.fillText("R$ 200", width / 2, panelY + 70);
-
-      ctx.fillStyle = "rgba(5,68,100,.62)";
-      ctx.font = "700 10px Montserrat, Inter, sans-serif";
-      ctx.fillText("CONDIÇÃO DISPONÍVEL", width / 2, panelY + 94);
-
-      ctx.restore();
-    }
-
-    function drawRoundRect(x, y, width, height, radius) {
-      const size = Math.min(radius, width / 2, height / 2);
-      ctx.beginPath();
-      ctx.moveTo(x + size, y);
-      ctx.lineTo(x + width - size, y);
-      ctx.quadraticCurveTo(x + width, y, x + width, y + size);
-      ctx.lineTo(x + width, y + height - size);
-      ctx.quadraticCurveTo(x + width, y + height, x + width - size, y + height);
-      ctx.lineTo(x + size, y + height);
-      ctx.quadraticCurveTo(x, y + height, x, y + height - size);
-      ctx.lineTo(x, y + size);
-      ctx.quadraticCurveTo(x, y, x + size, y);
-      ctx.closePath();
-    }
-
-    function drawShellIcon(cx, cy) {
-      ctx.save();
-      ctx.translate(cx, cy);
-      ctx.strokeStyle = "rgba(95,65,41,.72)";
-      ctx.fillStyle = "rgba(255,255,255,.36)";
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(0, 34);
-      ctx.bezierCurveTo(-14, 5, -28, 4, -32, 18);
-      ctx.bezierCurveTo(-42, 6, -34, -14, -16, -4);
-      ctx.bezierCurveTo(-12, -27, 12, -27, 16, -4);
-      ctx.bezierCurveTo(34, -14, 42, 6, 32, 18);
-      ctx.bezierCurveTo(28, 4, 14, 5, 0, 34);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(0, 34);
-      ctx.lineTo(0, -20);
-      ctx.moveTo(0, 34);
-      ctx.lineTo(-15, 0);
-      ctx.moveTo(0, 34);
-      ctx.lineTo(15, 0);
-      ctx.moveTo(0, 34);
-      ctx.lineTo(-29, 18);
-      ctx.moveTo(0, 34);
-      ctx.lineTo(29, 18);
-      ctx.strokeStyle = "rgba(5,68,100,.38)";
-      ctx.lineWidth = 1.4;
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    function getPoint(event) {
-      const rect = scratchRect || canvas.getBoundingClientRect();
-      return {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
-        clientX: event.clientX,
-        clientY: event.clientY
-      };
-    }
-
-    function scratchAt(point) {
-      const brush = brushSize;
-      ctx.globalCompositeOperation = "destination-out";
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      ctx.lineWidth = brush * 1.15;
-
-      if (lastPoint) {
-        ctx.beginPath();
-        ctx.moveTo(lastPoint.x, lastPoint.y);
-        ctx.lineTo(point.x, point.y);
-        ctx.stroke();
-      }
-
-      ctx.beginPath();
-      ctx.arc(point.x, point.y, brush / 2, 0, Math.PI * 2);
-      ctx.fill();
-      lastPoint = point;
-    }
-
-    function calculateProgress() {
-      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-      let transparent = 0;
-      let total = 0;
-
-      for (let i = 3; i < data.length; i += 32) {
-        total++;
-        if (data[i] < 80) transparent++;
-      }
-
-      return total ? Math.min(100, Math.round((transparent / total) * 100)) : 0;
-    }
-
-    function updateProgress(value) {
-      if (progressFill) progressFill.style.transform = `scaleX(${Math.max(0, Math.min(100, value)) / 100})`;
-      if (progressText) progressText.textContent = `${value}%`;
-    }
-
-    function checkProgress() {
-      if (revealed) return 100;
-      const progress = calculateProgress();
-      updateProgress(progress);
-      if (progress >= revealAt) revealBonus();
-      return progress;
-    }
-
-    function scheduleProgressCheck(force = false) {
-      if (revealed) return;
-
-      const interval = shouldReduceBonusMotion() ? 120 : 80;
-      const now = performance.now();
-      const elapsed = now - lastProgressCheck;
-
-      if (force || elapsed >= interval) {
-        window.clearTimeout(progressTimer);
-        progressTimer = null;
-        lastProgressCheck = now;
-        checkProgress();
-        return;
-      }
-
-      if (!progressTimer) {
-        progressTimer = window.setTimeout(() => {
-          progressTimer = null;
-          lastProgressCheck = performance.now();
-          checkProgress();
-        }, interval - elapsed);
-      }
-    }
-
-    function revealBonus() {
-      if (revealed) return;
-      revealed = true;
-      dialog.classList.add("is-revealed");
-      if (redeemButton) redeemButton.disabled = false;
-      updateProgress(100);
-      saveBonusState({
-        revealedAt: new Date().toISOString(),
-        status: "revealed"
-      });
-      finishRevealEffect();
-      showToast(`Cupom ${coupon} liberado`);
     }
 
     function getFocusableElements() {
@@ -1024,34 +722,6 @@
         event.preventDefault();
         first.focus();
       }
-    }
-
-    function handleStart(event) {
-      if (revealed) return;
-      event.preventDefault();
-      isDrawing = true;
-      lastPoint = null;
-      canvas.setPointerCapture?.(event.pointerId);
-      scratchAt(getPoint(event));
-    }
-
-    function handleMove(event) {
-      if (!isDrawing || revealed) return;
-      event.preventDefault();
-      scratchAt(getPoint(event));
-      scheduleProgressCheck();
-    }
-
-    function handleEnd(event) {
-      if (!isDrawing) return;
-      isDrawing = false;
-      lastPoint = null;
-      canvas.releasePointerCapture?.(event.pointerId);
-      scheduleProgressCheck(true);
-    }
-
-    function finishRevealEffect() {
-      return;
     }
 
     async function copyCoupon(successMessage = `Cupom copiado: ${coupon}`) {
@@ -1095,11 +765,6 @@
       toastTimer = window.setTimeout(() => toast.classList.remove("is-active"), 2200);
     }
 
-    canvas.addEventListener("pointerdown", handleStart);
-    canvas.addEventListener("pointermove", handleMove);
-    canvas.addEventListener("pointerup", handleEnd);
-    canvas.addEventListener("pointercancel", handleEnd);
-    window.addEventListener("pointerup", handleEnd);
     closeButton?.addEventListener("click", closePopup);
     popup.addEventListener("click", (event) => {
       if (event.target === popup) closePopup();
@@ -1109,18 +774,6 @@
       if (event.key === "Escape") closePopup();
       trapFocus(event);
     });
-    canvas.addEventListener("keydown", (event) => {
-      if ((event.key === "Enter" || event.key === " ") && !revealed) {
-        event.preventDefault();
-        revealBonus();
-      }
-    });
-    window.addEventListener("resize", () => {
-      if (!popup.classList.contains("is-active")) return;
-      window.clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(setupScratch, shouldReduceBonusMotion() ? 180 : 120);
-    });
-    resetButton?.addEventListener("click", setupScratch);
     copyButton?.addEventListener("click", () => {
       void copyCoupon();
     });

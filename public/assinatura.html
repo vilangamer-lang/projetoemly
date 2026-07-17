@@ -9,6 +9,14 @@
       content="Página individual de paciente do E-Club da Dra. Emlyn Dangui com agenda, histórico, procedimentos e observações."
     />
     <link rel="stylesheet" href="/css/styles.css" />
+    <script>
+      // Ativa o estado inicial "escondido" do reveal antes do paint (evita flash).
+      // Fallback de segurança: se o motion.js não carregar, revela tudo após 3s.
+      document.documentElement.classList.add("js-reveal");
+      window.__ecRevealFallback = window.setTimeout(function () {
+        document.documentElement.classList.remove("js-reveal");
+      }, 3000);
+    </script>
   </head>
   <body data-page="patient">
     <div class="page">
@@ -17,10 +25,10 @@
           <a class="brand" href="/" aria-label="E-Club da Dra. Emlyn Dangui">
             <span class="brand__lockup" aria-hidden="true">
               <img
-                src="/assets/brandbook/emlyn-logo-horizontal-slide-23-blue.png"
+                src="/assets/brandbook/emlyn-logo-horizontal-white-transparent.png"
                 alt=""
-                width="935"
-                height="485"
+                width="798"
+                height="440"
                 decoding="async"
                 fetchpriority="high"
               />
@@ -83,7 +91,7 @@
 
         <section class="section section--deep">
           <div class="container dashboard">
-            <article class="patient-section patient-section--timeline">
+            <article class="patient-section patient-section--timeline" data-reveal>
               <div class="section__header section__header--tight">
                 <p class="eyebrow">Linha do tempo</p>
                 <h2 class="section__title">Agenda e histórico</h2>
@@ -96,7 +104,7 @@
                     <h3 class="timeline-block__title">Próximas consultas</h3>
                     <span class="timeline-block__meta" data-profile-appointments-count>0 consultas</span>
                   </div>
-                  <ul class="record-list" data-profile-appointments></ul>
+                  <ul class="record-list" data-profile-appointments data-reveal-list></ul>
                 </section>
 
                 <section class="timeline-block">
@@ -104,41 +112,31 @@
                     <h3 class="timeline-block__title">Visitas anteriores</h3>
                     <span class="timeline-block__meta" data-profile-visits-count>0 visitas</span>
                   </div>
-                  <ul class="record-list" data-profile-history></ul>
+                  <ul class="record-list" data-profile-history data-reveal-list></ul>
                 </section>
               </div>
             </article>
 
             <div class="dashboard__split dashboard__split--secondary">
-              <article class="patient-section">
+              <article class="patient-section" data-reveal>
                 <div class="section__header section__header--tight">
                   <p class="eyebrow">Procedimentos</p>
                   <h2 class="section__title">O que já foi feito</h2>
                   <p class="section__lede">A leitura clínica fica em sequência, sem ruído visual.</p>
                 </div>
-                <ul class="record-list" data-profile-procedures></ul>
+                <ul class="record-list" data-profile-procedures data-reveal-list></ul>
               </article>
 
-              <article class="patient-section patient-section--support">
+              <article class="patient-section patient-section--support" data-reveal>
                 <div class="section__header section__header--tight">
                   <p class="eyebrow">Apoio</p>
-                  <h2 class="section__title">Observações, links e contato</h2>
-                  <p class="section__lede">Materiais de referência e canal da clínica em um único bloco.</p>
+                  <h2 class="section__title">Observações</h2>
+                  <p class="section__lede">Notas e orientações registradas para você.</p>
                 </div>
                 <div class="support-grid">
                   <article class="support-card">
                     <h3 class="support-card__title">Observações</h3>
-                    <ul class="note-list" data-profile-notes></ul>
-                  </article>
-
-                  <article class="support-card">
-                    <h3 class="support-card__title">Links</h3>
-                    <div class="contact-grid contact-grid--support" data-profile-links></div>
-                  </article>
-
-                  <article class="support-card">
-                    <h3 class="support-card__title">Contato</h3>
-                    <div class="contact-grid contact-grid--support" data-profile-contact></div>
+                    <ul class="note-list" data-profile-notes data-reveal-list></ul>
                   </article>
                 </div>
               </article>
@@ -148,14 +146,14 @@
       </main>
 
       <footer class="footer">
-        <div class="container footer__inner">
+        <div class="container footer__inner" data-reveal>
           <div class="footer__brand">
             <img
               class="footer__logo"
-              src="/assets/brandbook/emlyn-logo-horizontal-slide-23-blue.png"
+              src="/assets/brandbook/emlyn-logo-horizontal-white-transparent.png"
               alt="E-Club"
-              width="935"
-              height="485"
+              width="798"
+              height="440"
               decoding="async"
               loading="lazy"
             />
@@ -171,124 +169,101 @@
       data-bonus-popup
       data-bonus-open-delay="3000"
       data-bonus-coupon="EMLYN200"
-      data-bonus-reveal-at="64"
       data-bonus-valid-days="60"
       aria-hidden="true"
     >
       <section class="bonus-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="bonus-popup-title">
         <button class="bonus-popup__close" type="button" data-bonus-close aria-label="Fechar popup">&times;</button>
         <div class="bonus-popup__inner">
-          <h2 class="u-visually-hidden" id="bonus-popup-title">Bônus E-Club de R$ 200</h2>
+          <h2 class="u-visually-hidden" id="bonus-popup-title">Cashback E-Club de R$ 200</h2>
 
           <div class="bonus-popup__brand-row">
             <img
               class="bonus-popup__brand"
-              src="/assets/brandbook/emlyn-logo-horizontal-slide-23-blue.png"
+              src="/assets/brandbook/emlyn-logo-horizontal-white-transparent.png"
               alt="Dra. Emlyn Dangui"
-              width="935"
-              height="485"
+              width="798"
+              height="440"
               decoding="async"
               loading="lazy"
             />
           </div>
 
-          <div class="bonus-popup__tag">Condição exclusiva E-Club</div>
-
-          <div class="bonus-popup__scratch-wrap">
-            <div class="bonus-popup__scratch-card" data-bonus-card>
-              <div class="bonus-popup__content" aria-live="polite">
-                <div class="bonus-popup__card-layout">
-                  <div class="bonus-popup__card-graphic" aria-hidden="true">
-                    <svg viewBox="0 0 72 72" role="presentation" focusable="false">
-                      <defs>
-                        <linearGradient id="giftGlow" x1="0" x2="1" y1="0" y2="1">
-                          <stop offset="0%" stop-color="#9bd7e1" />
-                          <stop offset="100%" stop-color="#5aa8bb" />
-                        </linearGradient>
-                      </defs>
-                      <circle cx="36" cy="36" r="32" fill="url(#giftGlow)" opacity="0.22" />
-                      <rect x="22" y="30" width="28" height="22" rx="3" fill="none" stroke="#9bd7e1" stroke-width="3" />
-                      <path d="M22 37h28M36 30v22M29 24c0 3.5 1.8 6 6 6h1c0-4.3-1.5-7-4-8.8-2.3-1.6-4.5.1-3 2.8Zm14 0c0 3.5-1.8 6-6 6h-1c0-4.3 1.5-7 4-8.8 2.3-1.6 4.5.1 3 2.8Z" fill="none" stroke="#9bd7e1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </div>
-                  <div class="bonus-popup__card-copy">
-                    <div class="bonus-popup__card-kicker">Cashback</div>
-                    <div class="bonus-popup__bonus-value">R$ 200</div>
-                    <div class="bonus-popup__card-subtitle">para seu próximo procedimento</div>
-                  </div>
-                </div>
-
-                <div class="bonus-popup__card-features" aria-label="Condições do bônus">
-                  <div class="bonus-popup__feature">
-                    <span class="bonus-popup__feature-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" role="presentation" focusable="false">
-                        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8" />
-                        <path d="M8.5 12h7M12 8.5v7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                      </svg>
-                    </span>
-                    <span class="bonus-popup__feature-text">Desconto exclusivo</span>
-                  </div>
-                  <div class="bonus-popup__feature">
-                    <span class="bonus-popup__feature-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" role="presentation" focusable="false">
-                        <rect x="4.2" y="5.5" width="15.6" height="14" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8" />
-                        <path d="M4.2 9.5h15.6M8 3.9v3.7M16 3.9v3.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                      </svg>
-                    </span>
-                    <span class="bonus-popup__feature-text">Válido por 60 dias</span>
-                  </div>
-                  <div class="bonus-popup__feature">
-                    <span class="bonus-popup__feature-icon" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" role="presentation" focusable="false">
-                        <path d="M12 4l1.8 4.2L18 10l-4.2 1.8L12 16l-1.8-4.2L6 10l4.2-1.8L12 4Z" fill="currentColor" />
-                        <path d="M18.5 15l.8 1.9L21 17.5l-1.7.6-.8 1.9-.8-1.9-1.7-.6 1.7-.6.8-1.9Z" fill="currentColor" opacity="0.85" />
-                      </svg>
-                    </span>
-                    <span class="bonus-popup__feature-text">Uso único</span>
-                  </div>
-                </div>
-              </div>
-
-              <canvas class="bonus-popup__canvas" data-bonus-canvas aria-label="Área para liberar o cupom"></canvas>
-            </div>
-          </div>
-
-          <div class="bonus-popup__info-card">
-            <div class="bonus-popup__info-icon" aria-hidden="true">
+          <div class="bonus-popup__tag">
+            <span class="bonus-popup__tag-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" role="presentation" focusable="false">
-                <rect x="4.2" y="5.4" width="15.6" height="14.4" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.8" />
-                <path d="M7 3.9v3.5M17 3.9v3.5M4.2 10h15.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                <path d="M9 14.4l1.8 1.9 4.2-4.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M12 3.4l2.5 5.1 5.6.8-4 4 .9 5.6-5-2.7-5 2.7.9-5.6-4-4 5.6-.8L12 3.4Z" fill="currentColor" />
               </svg>
+            </span>
+            <span>Condição exclusiva E-Club</span>
+          </div>
+
+          <div class="bonus-popup__card" data-bonus-card>
+            <div class="bonus-popup__card-layout">
+              <div class="bonus-popup__card-copy">
+                <div class="bonus-popup__card-kicker">CASHBACK</div>
+                <div class="bonus-popup__bonus-value">R$ 200</div>
+                <div class="bonus-popup__card-subtitle">para seu <strong>próximo procedimento</strong></div>
+              </div>
             </div>
-            <div class="bonus-popup__info-copy">
-              <strong>Válido por 60 dias após a ativação.</strong>
-              <span>O valor ficará disponível automaticamente para utilização no seu próximo procedimento elegível.</span>
+
+            <div class="bonus-popup__card-features" aria-label="Condições do bônus">
+              <div class="bonus-popup__feature">
+                <span class="bonus-popup__feature-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+                    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8" />
+                    <path d="M8.5 12h7M12 8.5v7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                  </svg>
+                </span>
+                <span class="bonus-popup__feature-text">Desconto exclusivo</span>
+              </div>
+              <div class="bonus-popup__feature">
+                <span class="bonus-popup__feature-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+                    <rect x="4.2" y="5.5" width="15.6" height="14" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8" />
+                    <path d="M4.2 9.5h15.6M8 3.9v3.7M16 3.9v3.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                  </svg>
+                </span>
+                <span class="bonus-popup__feature-text">Válido por 60 dias</span>
+              </div>
+              <div class="bonus-popup__feature">
+                <span class="bonus-popup__feature-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+                    <path d="M12 4l1.8 4.2L18 10l-4.2 1.8L12 16l-1.8-4.2L6 10l4.2-1.8L12 4Z" fill="currentColor" />
+                    <path d="M18.5 15l.8 1.9L21 17.5l-1.7.6-.8 1.9-.8-1.9-1.7-.6 1.7-.6.8-1.9Z" fill="currentColor" opacity="0.85" />
+                  </svg>
+                </span>
+                <span class="bonus-popup__feature-text">Uso único</span>
+              </div>
             </div>
           </div>
 
-          <div class="bonus-popup__actions">
-            <button class="bonus-popup__cta" type="button" data-bonus-redeem disabled>
-              <span class="bonus-popup__cta-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" role="presentation" focusable="false">
-                  <path d="M4 11.6L12 5l8 6.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
-                  <path d="M6.4 10.8V19h4.3v-5h2.6v5h4.3v-8.2" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-              </span>
-              <span>Ir para página inicial</span>
-              <span class="bonus-popup__cta-arrow" aria-hidden="true">›</span>
+          <div class="bonus-popup__coupon">
+            <div class="bonus-popup__coupon-info">
+              <span class="bonus-popup__coupon-label">Cupom E-Club</span>
+              <strong class="bonus-popup__coupon-code">EMLYN200</strong>
+            </div>
+            <button class="bonus-popup__coupon-copy" type="button" data-bonus-copy>
+              <svg viewBox="0 0 24 24" role="presentation" focusable="false" aria-hidden="true">
+                <rect x="9" y="9" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
+                <path d="M5 15V6a2 2 0 0 1 2-2h9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              </svg>
+              <span>Copiar</span>
             </button>
           </div>
 
-          <p class="bonus-popup__fineprint">
-            <span class="bonus-popup__fineprint-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" role="presentation" focusable="false">
-                <path d="M12 3l8 4v6c0 5-3.6 8.8-8 10-4.4-1.2-8-5-8-10V7l8-4Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
-                <path d="M9.2 12.2l1.7 1.8 3.8-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </span>
-            <span>Condição exclusiva para membros do E-Club. Aproveite seu benefício e cuide de você.</span>
-          </p>
+          <div class="bonus-popup__actions">
+            <button class="bonus-popup__cta" type="button" data-bonus-redeem>
+              <span class="bonus-popup__cta-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+                  <rect x="4.4" y="9.8" width="15.2" height="10" rx="1.8" fill="none" stroke="currentColor" stroke-width="1.9" />
+                  <path d="M4.4 13.2h15.2M12 9.8v10M8.4 7.4c0 1.5.9 2.4 2.8 2.4h.8c0-1.9-.7-3-1.9-3.8-1.1-.7-2.2.1-1.7 1.4Zm7.2 0c0 1.5-.9 2.4-2.8 2.4h-.8c0-1.9.7-3 1.9-3.8 1.1-.7 2.2.1 1.7 1.4Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </span>
+              <span>Ativar meu cashback</span>
+              <span class="bonus-popup__cta-arrow" aria-hidden="true">›</span>
+            </button>
+          </div>
         </div>
       </section>
 
@@ -297,5 +272,6 @@
 
     <script src="/js/shared.js"></script>
     <script src="/js/app.js"></script>
+    <script src="/js/motion.js"></script>
   </body>
 </html>

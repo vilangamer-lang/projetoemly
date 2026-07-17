@@ -19,6 +19,14 @@
   --shadow: 0 18px 48px rgba(5, 42, 58, 0.11);
   --shadow-soft: 0 10px 30px rgba(5, 42, 58, 0.08);
   --container: 1180px;
+  /* Motion tokens — sistema de animação (sutil e elegante) */
+  --motion-fast: 180ms;
+  --motion-base: 320ms;
+  --motion-slow: 600ms;
+  --motion-ambient: 22s;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --reveal-shift: 18px;
 }
 
 *,
@@ -79,6 +87,13 @@ button {
   border-bottom: 1px solid var(--line);
   background: rgba(237, 236, 235, 0.9);
   backdrop-filter: blur(12px);
+  transition: box-shadow var(--motion-base) var(--ease-out),
+    background var(--motion-base) var(--ease-out);
+}
+
+.site-header.is-scrolled {
+  background: rgba(237, 236, 235, 0.97);
+  box-shadow: 0 10px 30px rgba(5, 42, 58, 0.1);
 }
 
 .site-header__inner {
@@ -163,7 +178,7 @@ body[data-page="patient"] .footer__brand {
 }
 
 body[data-page="patient"] .footer__logo {
-  width: min(320px, 76vw);
+  width: min(150px, 44vw);
   height: auto;
   display: block;
 }
@@ -187,8 +202,7 @@ body[data-page="patient"] .brand:hover {
   transform: translateY(-1px);
 }
 
-body[data-page="patient"] .brand:focus-visible,
-body[data-page="patient"] .contact-item__link:focus-visible {
+body[data-page="patient"] .brand:focus-visible {
   outline: 2px solid rgba(5, 68, 100, 0.42);
   outline-offset: 2px;
 }
@@ -211,7 +225,6 @@ body[data-page="patient"] .panel__eyebrow,
 body[data-page="patient"] .feature__kicker,
 body[data-page="patient"] .record__date,
 body[data-page="patient"] .patient-meta__label,
-body[data-page="patient"] .contact-item__label,
 body[data-page="patient"] .timeline-block__meta {
   font-size: 0.78rem;
   letter-spacing: 0.1em;
@@ -312,7 +325,7 @@ body[data-page="patient"] .timeline-block__meta {
 body[data-page="patient"] .support-grid {
   display: grid;
   gap: 14px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
 }
 
 body[data-page="patient"] .support-card {
@@ -330,65 +343,6 @@ body[data-page="patient"] .support-card:focus-within {
   transform: translateY(-2px);
   border-color: rgba(5, 68, 100, 0.2);
   box-shadow: var(--shadow);
-}
-
-body[data-page="patient"] .contact-grid--support {
-  grid-template-columns: 1fr;
-}
-
-body[data-page="patient"] .contact-item {
-  display: grid;
-  gap: 8px;
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: calc(var(--radius) + 2px);
-  background: rgba(255, 255, 255, 0.5);
-  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
-}
-
-body[data-page="patient"] .contact-item:hover,
-body[data-page="patient"] .contact-item:focus-within {
-  transform: translateY(-2px);
-  border-color: rgba(5, 68, 100, 0.2);
-  box-shadow: var(--shadow);
-}
-
-body[data-page="patient"] .contact-item__label {
-  color: var(--deep);
-  line-height: 1.2;
-}
-
-body[data-page="patient"] .contact-item__value {
-  margin: 0;
-  color: var(--ink);
-  font-weight: 700;
-}
-
-body[data-page="patient"] .contact-item__link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-  min-height: 46px;
-  padding: 12px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba(5, 68, 100, 0.18);
-  background: rgba(5, 68, 100, 0.08);
-  color: var(--deep);
-  text-decoration: none;
-  transition: background 160ms ease, transform 160ms ease, border-color 160ms ease;
-}
-
-body[data-page="patient"] .contact-item__link:hover {
-  transform: translateY(-1px);
-  border-color: rgba(5, 68, 100, 0.28);
-  background: rgba(5, 68, 100, 0.12);
-}
-
-body[data-page="patient"] .contact-item__link-icon {
-  font-size: 0.95rem;
-  line-height: 1;
 }
 
 body[data-page="patient"] .record {
@@ -431,6 +385,7 @@ body[data-page="patient"] .page-state.hidden {
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  /* Entrada above-the-fold — dispara ao montar o perfil (is-patient-ready) */
   body[data-page="patient"].is-patient-ready .hero__grid > * {
     animation: patient-rise 620ms ease both;
   }
@@ -443,25 +398,31 @@ body[data-page="patient"] .page-state.hidden {
     animation-delay: 140ms;
   }
 
-  body[data-page="patient"].is-patient-ready .dashboard > .patient-section {
-    animation: patient-rise 620ms ease both;
-    animation-delay: 220ms;
+  /* Revelar ao rolar (below-the-fold). Gate .js-reveal = só esconde se o JS ligou;
+     sem JS ou com reduced-motion o conteúdo aparece normalmente. */
+  html.js-reveal [data-reveal] {
+    opacity: 0;
+    transform: translateY(var(--reveal-shift));
+    transition: opacity var(--motion-slow) var(--ease-out),
+      transform var(--motion-slow) var(--ease-out);
+    will-change: opacity, transform;
   }
 
-  body[data-page="patient"].is-patient-ready .dashboard__split > .patient-section:first-child {
-    animation: patient-rise 620ms ease both;
-    animation-delay: 300ms;
+  html.js-reveal [data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
   }
 
-  body[data-page="patient"].is-patient-ready .dashboard__split > .patient-section:last-child {
-    animation: patient-rise 620ms ease both;
-    animation-delay: 380ms;
+  /* Stagger sutil dos itens de lista quando a seção que os contém revela */
+  html.js-reveal [data-reveal].is-revealed [data-reveal-list] > * {
+    animation: patient-rise var(--motion-base) var(--ease-out) both;
   }
-
-  body[data-page="patient"].is-patient-ready .footer__inner {
-    animation: patient-rise 620ms ease both;
-    animation-delay: 460ms;
-  }
+  html.js-reveal [data-reveal].is-revealed [data-reveal-list] > :nth-child(1) { animation-delay: 120ms; }
+  html.js-reveal [data-reveal].is-revealed [data-reveal-list] > :nth-child(2) { animation-delay: 190ms; }
+  html.js-reveal [data-reveal].is-revealed [data-reveal-list] > :nth-child(3) { animation-delay: 260ms; }
+  html.js-reveal [data-reveal].is-revealed [data-reveal-list] > :nth-child(4) { animation-delay: 330ms; }
+  html.js-reveal [data-reveal].is-revealed [data-reveal-list] > :nth-child(5) { animation-delay: 400ms; }
+  html.js-reveal [data-reveal].is-revealed [data-reveal-list] > :nth-child(n + 6) { animation-delay: 470ms; }
 }
 
 @keyframes patient-rise {
@@ -486,8 +447,6 @@ body[data-page="patient"] .page-state.hidden {
   body[data-page="patient"] .footer__inner,
   body[data-page="patient"] .support-card,
   body[data-page="patient"] .record,
-  body[data-page="patient"] .contact-item,
-  body[data-page="patient"] .contact-item__link,
   body[data-page="patient"] .brand,
   body[data-page="patient"] .brand__mark img,
   body[data-page="patient"] .page-state {
@@ -1390,36 +1349,6 @@ body[data-page="patient"] .page-state.hidden {
   background: var(--accent);
 }
 
-.contact-grid {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.contact-item {
-  display: grid;
-  gap: 4px;
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.46);
-}
-
-.contact-item__label {
-  margin: 0;
-  color: var(--deep);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.7rem;
-  font-weight: 700;
-}
-
-.contact-item__value {
-  margin: 0;
-  font-weight: 700;
-  color: var(--ink);
-}
-
 .hidden {
   display: none !important;
 }
@@ -1598,109 +1527,6 @@ body[data-page="patient"] .page-state.hidden {
   box-shadow: 0 0 12px rgba(200, 167, 106, 0.72);
 }
 
-.bonus-popup__title {
-  margin: 0 0 9px;
-  color: var(--bonus-deep);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 2.125rem;
-  line-height: 0.98;
-  font-weight: 500;
-  text-align: center;
-}
-
-.bonus-popup__subtitle {
-  max-width: 310px;
-  margin: 0 auto 16px;
-  color: var(--bonus-muted);
-  font-size: 0.85rem;
-  line-height: 1.55;
-  text-align: center;
-}
-
-.bonus-popup__scratch-wrap {
-  position: relative;
-  width: 100%;
-  margin: 0 auto 13px;
-  padding: 10px;
-  border: 1px solid rgba(5, 68, 100, 0.1);
-  border-radius: calc(var(--radius) + 10px);
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.86), rgba(237, 236, 235, 0.72)),
-    linear-gradient(135deg, rgba(200, 167, 106, 0.18), rgba(5, 68, 100, 0.12));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82), 0 18px 38px rgba(5, 68, 100, 0.1);
-}
-
-.bonus-popup__scratch-card {
-  position: relative;
-  height: 174px;
-  overflow: hidden;
-  isolation: isolate;
-  border: 1px solid rgba(200, 167, 106, 0.26);
-  border-radius: calc(var(--radius) + 6px);
-  background:
-    radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.92), rgba(250, 248, 243, 0.78) 38%, rgba(237, 236, 235, 0.86)),
-    linear-gradient(145deg, #fffdf9, #f3ede4);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 -18px 34px rgba(5, 68, 100, 0.045),
-    0 16px 36px rgba(5, 68, 100, 0.105);
-}
-
-.bonus-popup__scratch-card::before {
-  content: "";
-  position: absolute;
-  inset: -30%;
-  background:
-    conic-gradient(from 130deg, transparent, rgba(255, 255, 255, 0.62), transparent 26%),
-    repeating-radial-gradient(ellipse at center, rgba(200, 167, 106, 0.1) 0 1px, transparent 2px 16px);
-  opacity: 0.7;
-  animation: bonusPearlShine 8s linear infinite;
-}
-
-.bonus-popup__scratch-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 22% 24%, rgba(255, 255, 255, 0.46), transparent 16%),
-    radial-gradient(circle at 78% 72%, rgba(200, 167, 106, 0.16), transparent 18%);
-  opacity: 0.75;
-  animation: bonusPearlBreathe 4800ms ease-in-out infinite;
-}
-
-.bonus-popup__content {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  display: grid;
-  place-items: center;
-  padding: 18px;
-  text-align: center;
-}
-
-.bonus-popup__shell {
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  margin: 0 auto 6px;
-  border: 1px solid rgba(200, 167, 106, 0.34);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.68);
-  color: var(--bonus-gold);
-  box-shadow: 0 12px 26px rgba(95, 65, 41, 0.08);
-  animation: bonusShellPulse 2600ms ease-in-out infinite;
-}
-
-.bonus-popup__bonus-label {
-  color: var(--bonus-brown);
-  font-size: 0.68rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-}
 
 .bonus-popup__bonus-value {
   margin: 2px 0 6px;
@@ -1708,148 +1534,6 @@ body[data-page="patient"] .page-state.hidden {
   font-size: 3rem;
   line-height: 0.94;
   font-weight: 900;
-}
-
-.bonus-popup__bonus-caption {
-  color: var(--bonus-muted);
-  font-size: 0.78rem;
-  line-height: 1.35;
-}
-
-.bonus-popup__canvas {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  width: 100%;
-  height: 100%;
-  cursor: grab;
-  touch-action: none;
-  transition: opacity 700ms var(--bonus-ease), transform 700ms var(--bonus-ease);
-}
-
-.bonus-popup__canvas:active {
-  cursor: grabbing;
-}
-
-.bonus-popup__dialog.is-revealed .bonus-popup__canvas {
-  opacity: 0;
-  transform: scale(1.02);
-  pointer-events: none;
-}
-
-.bonus-popup__motion {
-  position: absolute;
-  inset: 0;
-  z-index: 4;
-  overflow: hidden;
-  border-radius: inherit;
-  opacity: 0.95;
-  pointer-events: none;
-  transition: opacity 550ms var(--bonus-ease), transform 550ms var(--bonus-ease);
-}
-
-.bonus-popup__motion::before {
-  content: "";
-  position: absolute;
-  inset: -55% -35%;
-  background: linear-gradient(
-    112deg,
-    transparent 0 38%,
-    rgba(255, 255, 255, 0.34) 44%,
-    rgba(233, 216, 168, 0.58) 49%,
-    rgba(255, 255, 255, 0.28) 54%,
-    transparent 62% 100%
-  );
-  transform: translateX(-42%) rotate(6deg);
-  animation: bonusLightSweep 3350ms ease-in-out infinite;
-  mix-blend-mode: screen;
-}
-
-.bonus-popup__motion::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 46%;
-  width: 142px;
-  height: 142px;
-  border-radius: 999px;
-  background:
-    radial-gradient(circle, rgba(255, 255, 255, 0.46), transparent 48%),
-    radial-gradient(circle, rgba(200, 167, 106, 0.16), transparent 60%);
-  filter: blur(2px);
-  transform: translate(-50%, -50%);
-  animation: bonusPearlHalo 2900ms ease-in-out infinite;
-  mix-blend-mode: soft-light;
-}
-
-.bonus-popup__dialog.is-revealed .bonus-popup__motion {
-  opacity: 0;
-  transform: scale(1.03);
-}
-
-.bonus-popup__cover-dot {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(255, 253, 248, 0.92);
-  box-shadow: 0 0 16px rgba(233, 216, 168, 0.95), 0 0 28px rgba(255, 255, 255, 0.42);
-  animation: bonusDotFloat 2800ms ease-in-out infinite;
-}
-
-.bonus-popup__cover-dot--one {
-  left: 18%;
-  top: 24%;
-  animation-delay: 150ms;
-}
-
-.bonus-popup__cover-dot--two {
-  left: 78%;
-  top: 30%;
-  width: 5px;
-  height: 5px;
-  animation-delay: 800ms;
-}
-
-.bonus-popup__cover-dot--three {
-  left: 68%;
-  top: 74%;
-  width: 4px;
-  height: 4px;
-  animation-delay: 1250ms;
-}
-
-.bonus-popup__progress {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 10px 2px 0;
-}
-
-.bonus-popup__progress-track {
-  flex: 1;
-  height: 7px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: rgba(5, 68, 100, 0.08);
-}
-
-.bonus-popup__progress-fill {
-  width: 100%;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, var(--bonus-taupe), var(--bonus-gold), var(--bonus-deep));
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 180ms linear;
-}
-
-.bonus-popup__progress-text {
-  width: 62px;
-  color: var(--bonus-muted);
-  font-size: 0.68rem;
-  font-weight: 800;
-  text-align: right;
 }
 
 .bonus-popup__actions {
@@ -1895,38 +1579,6 @@ body[data-page="patient"] .page-state.hidden {
   box-shadow: none;
 }
 
-.bonus-popup__mini-actions {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.bonus-popup__mini-button {
-  height: 34px;
-  border: 1px solid rgba(5, 68, 100, 0.12);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--bonus-deep);
-  padding: 0 12px;
-  font-size: 0.75rem;
-  font-weight: 800;
-  transition: transform 200ms var(--bonus-ease), background 200ms var(--bonus-ease);
-}
-
-.bonus-popup__mini-button:hover {
-  transform: translateY(-1px);
-  background: #fff;
-}
-
-.bonus-popup__fineprint {
-  margin: 11px 0 0;
-  color: #809198;
-  font-size: 0.68rem;
-  line-height: 1.4;
-  text-align: center;
-}
-
 .bonus-popup__toast {
   position: fixed;
   left: 50%;
@@ -1951,74 +1603,6 @@ body[data-page="patient"] .page-state.hidden {
   transform: translate(-50%, 0);
 }
 
-@keyframes bonusPearlShine {
-  to {
-    transform: rotate(1turn);
-  }
-}
-
-@keyframes bonusPearlBreathe {
-  0%,
-  100% {
-    opacity: 0.52;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.92;
-    transform: scale(1.025);
-  }
-}
-
-@keyframes bonusShellPulse {
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-2px) scale(1.045);
-  }
-}
-
-@keyframes bonusLightSweep {
-  0%,
-  18% {
-    transform: translateX(-46%) rotate(6deg);
-    opacity: 0;
-  }
-  42% {
-    opacity: 0.95;
-  }
-  70%,
-  100% {
-    transform: translateX(46%) rotate(6deg);
-    opacity: 0;
-  }
-}
-
-@keyframes bonusPearlHalo {
-  0%,
-  100% {
-    opacity: 0.52;
-    transform: translate(-50%, -50%) scale(0.92);
-  }
-  50% {
-    opacity: 0.95;
-    transform: translate(-50%, -50%) scale(1.08);
-  }
-}
-
-@keyframes bonusDotFloat {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(0.85);
-    opacity: 0.48;
-  }
-  50% {
-    transform: translate3d(0, -8px, 0) scale(1.08);
-    opacity: 1;
-  }
-}
-
 @keyframes bonusButtonShine {
   to {
     transform: translateX(110%);
@@ -2032,14 +1616,6 @@ body[data-page="patient"] .page-state.hidden {
 
   .bonus-popup__inner {
     padding: 20px 16px 18px;
-  }
-
-  .bonus-popup__title {
-    font-size: 1.88rem;
-  }
-
-  .bonus-popup__scratch-card {
-    height: 164px;
   }
 
   .bonus-popup__bonus-value {
@@ -2362,7 +1938,7 @@ body[data-page="patient"] .page-state.hidden {
 
 @media (max-width: 1120px) {
   body[data-page="patient"] .support-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 }
 
@@ -2505,8 +2081,6 @@ body[data-page="patient"] .panel__title,
 body[data-page="patient"] .patient-meta__value,
 body[data-page="patient"] .record__title,
 body[data-page="patient"] .record__text,
-body[data-page="patient"] .contact-item__value,
-body[data-page="patient"] .contact-item__link,
 body[data-page="patient"] .chip {
   overflow-wrap: anywhere;
 }
@@ -2566,7 +2140,6 @@ body[data-page="patient"] .panel__eyebrow,
 body[data-page="patient"] .feature__kicker,
 body[data-page="patient"] .record__date,
 body[data-page="patient"] .patient-meta__label,
-body[data-page="patient"] .contact-item__label,
 body[data-page="patient"] .timeline-block__meta {
   letter-spacing: 0.08em;
 }
@@ -2755,20 +2328,6 @@ body[data-page="patient"] .identity__avatar,
   gap: 8px;
 }
 
-body[data-page="patient"] .patient-quick-list .contact-item {
-  padding: 0;
-  border: 0;
-  background: transparent;
-}
-
-body[data-page="patient"] .patient-quick-list .contact-item__label {
-  color: rgba(191, 228, 234, 0.82);
-}
-
-body[data-page="patient"] .patient-quick-list .contact-item__value {
-  color: #ffffff;
-}
-
 body[data-page="patient"] .section--deep {
   position: relative;
   isolation: isolate;
@@ -2808,6 +2367,24 @@ body[data-page="patient"] .section--deep::after {
   opacity: 0.7;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  body[data-page="patient"] .section--deep::after {
+    animation: aqua-drift var(--motion-ambient) var(--ease-in-out) infinite;
+  }
+}
+
+@keyframes aqua-drift {
+  0%,
+  100% {
+    transform: rotate(-4deg) translate3d(-1.5%, 0, 0);
+    opacity: 0.62;
+  }
+  50% {
+    transform: rotate(-4deg) translate3d(1.5%, 12px, 0);
+    opacity: 0.78;
+  }
+}
+
 body[data-page="patient"] .dashboard {
   position: relative;
   z-index: 1;
@@ -2818,8 +2395,7 @@ body[data-page="patient"] .section--deep .section__title,
 body[data-page="patient"] .section--deep .timeline-block__title,
 body[data-page="patient"] .section--deep .timeline-block__meta,
 body[data-page="patient"] .section--deep .record__title,
-body[data-page="patient"] .section--deep .support-card__title,
-body[data-page="patient"] .section--deep .contact-item__value {
+body[data-page="patient"] .section--deep .support-card__title {
   color: var(--patient-text);
 }
 
@@ -2858,7 +2434,6 @@ body[data-page="patient"] .patient-section::after {
 }
 
 body[data-page="patient"] .support-card,
-body[data-page="patient"] .contact-item,
 body[data-page="patient"] .record {
   border-color: rgba(191, 228, 234, 0.22);
   background:
@@ -2868,9 +2443,7 @@ body[data-page="patient"] .record {
 }
 
 body[data-page="patient"] .record:hover,
-body[data-page="patient"] .support-card:hover,
-body[data-page="patient"] .contact-item:hover,
-body[data-page="patient"] .contact-item:focus-within {
+body[data-page="patient"] .support-card:hover {
   border-color: rgba(191, 228, 234, 0.36);
   background:
     radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.14), transparent 38%),
@@ -2883,13 +2456,11 @@ body[data-page="patient"] .timeline-block {
 
 body[data-page="patient"] .timeline-block__meta,
 body[data-page="patient"] .record__date,
-body[data-page="patient"] .patient-meta__label,
-body[data-page="patient"] .contact-item__label {
+body[data-page="patient"] .patient-meta__label {
   color: var(--patient-text-muted);
 }
 
-body[data-page="patient"] .record__time,
-body[data-page="patient"] .contact-item__link {
+body[data-page="patient"] .record__time {
   color: #bfe4ea;
 }
 
@@ -2985,7 +2556,6 @@ body[data-page="admin"] .section--deep {
 .patient-list__item,
 .repeater__row,
 .tab-panel,
-.contact-item,
 .record {
   border-color: rgba(5, 68, 100, 0.14);
 }
@@ -3007,7 +2577,6 @@ body[data-page="admin"] .section--deep {
 .button,
 .tabs__button,
 .bonus-popup__cta,
-.bonus-popup__mini-button,
 .bonus-popup__close,
 .bonus-card__button {
   min-height: 44px;
@@ -3037,11 +2606,8 @@ body[data-page="admin"] .section--deep {
 .patient-list__item:focus-visible,
 .bonus-popup__close:focus-visible,
 .bonus-popup__cta:focus-visible,
-.bonus-popup__mini-button:focus-visible,
-.bonus-popup__canvas:focus-visible,
 .bonus-card__button:focus-visible,
-body[data-page="patient"] .brand:focus-visible,
-body[data-page="patient"] .contact-item__link:focus-visible {
+body[data-page="patient"] .brand:focus-visible {
   outline: 3px solid rgba(11, 111, 133, 0.36);
   outline-offset: 3px;
 }
@@ -3087,9 +2653,8 @@ body[data-page="patient"] .contact-item__link:focus-visible {
   --bonus-gold-light: #bfe4ea;
   --bonus-muted: #526c74;
   --bonus-surface: #f8fbfa;
-  background:
-    linear-gradient(180deg, rgba(2, 24, 36, 0.7), rgba(3, 42, 60, 0.62)),
-    url("/assets/brandbook/emlyn-water-reflection-25.jpg") center / cover no-repeat;
+  background: rgba(2, 20, 30, 0.55);
+  backdrop-filter: blur(18px);
 }
 
 .bonus-popup__dialog {
@@ -3120,12 +2685,6 @@ body[data-page="patient"] .contact-item__link:focus-visible {
   box-shadow: 0 0 14px rgba(11, 111, 133, 0.45);
 }
 
-.bonus-popup__scratch-wrap,
-.bonus-popup__scratch-card,
-.bonus-popup__mini-button {
-  border-color: rgba(5, 68, 100, 0.14);
-}
-
 .bonus-popup__brand {
   width: 148px;
   margin-bottom: 16px;
@@ -3133,89 +2692,15 @@ body[data-page="patient"] .contact-item__link:focus-visible {
   filter: drop-shadow(0 12px 20px rgba(5, 68, 100, 0.08));
 }
 
-.bonus-popup__title {
-  max-width: 340px;
-  margin-inline: auto;
-  font-family: inherit;
-  font-size: clamp(1.55rem, 6vw, 2.02rem);
-  line-height: 1.06;
-  font-weight: 900;
-}
-
-.bonus-popup__subtitle {
-  max-width: 315px;
-  font-size: 0.88rem;
-}
-
-.bonus-popup__scratch-wrap {
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.86), rgba(226, 240, 242, 0.78)),
-    radial-gradient(circle at 10% 0%, rgba(191, 228, 234, 0.38), transparent 38%);
-}
-
-.bonus-popup__scratch-card {
-  height: 164px;
-  background:
-    radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.92), rgba(231, 243, 244, 0.82) 42%, rgba(213, 232, 235, 0.86)),
-    linear-gradient(145deg, #f9fdfc, #dcecef);
-}
-
-.bonus-popup__scratch-card::before {
-  animation: none;
-  background:
-    repeating-linear-gradient(116deg, rgba(5, 68, 100, 0.07) 0 1px, transparent 1px 42px),
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.46), transparent 48%);
-  opacity: 0.68;
-}
-
-.bonus-popup__scratch-card::after {
-  animation: none;
-  background:
-    radial-gradient(circle at 24% 24%, rgba(255, 255, 255, 0.34), transparent 18%),
-    linear-gradient(128deg, transparent 0 44%, rgba(255, 255, 255, 0.22) 49%, transparent 58% 100%);
-  opacity: 0.58;
-}
-
-.bonus-popup__shell,
-.bonus-popup__motion,
-.bonus-popup__progress {
-  display: none !important;
-}
-
-.bonus-popup__bonus-label {
-  color: #054464;
-}
-
 .bonus-popup__bonus-value {
   color: #043247;
   font-size: clamp(2.35rem, 12vw, 3.1rem);
-}
-
-.bonus-popup__bonus-caption {
-  max-width: 240px;
-  margin-inline: auto;
-  color: #526c74;
-}
-
-.bonus-popup__canvas {
-  border-radius: inherit;
 }
 
 .bonus-popup__cta {
   border-radius: var(--radius);
   background: linear-gradient(135deg, #054464, #0b6f85);
   letter-spacing: 0;
-}
-
-.bonus-popup__mini-button {
-  border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.56);
-}
-
-.bonus-popup__fineprint {
-  max-width: 330px;
-  margin-inline: auto;
-  color: #526c74;
 }
 
 body[data-page="patient"] .site-header__inner {
@@ -3232,17 +2717,17 @@ body[data-page="patient"] .bonus-popup {
   max-width: 100vw;
   box-sizing: border-box;
   overflow-x: hidden;
-  background:
-    linear-gradient(180deg, rgba(1, 20, 31, 0.8), rgba(1, 33, 47, 0.72)),
-    url("/assets/brandbook/emlyn-water-reflection-25.jpg") center / cover no-repeat;
+  background: rgba(2, 20, 30, 0.55);
+  backdrop-filter: blur(18px);
 }
 
 body[data-page="patient"] .bonus-popup__dialog {
   position: fixed;
   top: 50%;
   left: 50%;
-  width: min(440px, 100%);
-  max-height: min(94vh, 760px);
+  width: min(420px, calc(100vw - 32px));
+  max-height: min(97vh, 680px);
+  overflow: hidden;
   border-color: rgba(191, 228, 234, 0.26);
   background:
     radial-gradient(circle at 50% 0%, rgba(191, 228, 234, 0.16), transparent 36%),
@@ -3264,8 +2749,8 @@ body[data-page="patient"] .bonus-popup__dialog::before {
 
 body[data-page="patient"] .bonus-popup__inner {
   display: grid;
-  gap: 14px;
-  padding: 20px 18px 18px;
+  gap: 9px;
+  padding: 16px 18px 15px;
 }
 
 body[data-page="patient"] .bonus-popup__brand-row {
@@ -3274,7 +2759,7 @@ body[data-page="patient"] .bonus-popup__brand-row {
 }
 
 body[data-page="patient"] .bonus-popup__brand {
-  width: min(252px, 72vw);
+  width: min(176px, 52vw);
   max-width: 100%;
   margin: 0;
   filter: drop-shadow(0 10px 18px rgba(0, 11, 18, 0.22));
@@ -3285,7 +2770,7 @@ body[data-page="patient"] .bonus-popup__tag {
   border-color: rgba(191, 228, 234, 0.14);
   background: rgba(255, 255, 255, 0.08);
   color: #d7eef2;
-  padding: 10px 16px;
+  padding: 8px 15px;
   letter-spacing: 0;
 }
 
@@ -3300,74 +2785,87 @@ body[data-page="patient"] .bonus-popup__tag::before {
   line-height: 1;
 }
 
-body[data-page="patient"] .bonus-popup__scratch-wrap {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-body[data-page="patient"] .bonus-popup__scratch-card {
+body[data-page="patient"] .bonus-popup__card {
   display: grid;
-  gap: 16px;
-  min-height: 282px;
-  height: auto;
-  padding: 20px 18px 18px;
-  border-color: rgba(191, 228, 234, 0.18);
-  border-radius: 30px;
+  gap: 14px;
+  padding: 18px 18px 16px;
+  border: 1px solid rgba(191, 228, 234, 0.18);
+  border-radius: 28px;
   background:
-    radial-gradient(circle at 12% 12%, rgba(191, 228, 234, 0.14), transparent 28%),
+    radial-gradient(circle at 12% 12%, rgba(191, 228, 234, 0.14), transparent 30%),
     linear-gradient(160deg, rgba(5, 61, 84, 0.98), rgba(4, 49, 67, 0.98));
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -22px 40px rgba(0, 0, 0, 0.18),
-    0 18px 38px rgba(0, 11, 18, 0.2);
-}
-
-body[data-page="patient"] .bonus-popup__scratch-card::before {
-  background:
-    repeating-linear-gradient(116deg, rgba(255, 255, 255, 0.1) 0 1px, transparent 1px 42px),
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.24), transparent 48%);
-  opacity: 0.68;
-}
-
-body[data-page="patient"] .bonus-popup__scratch-card::after {
-  background:
-    radial-gradient(circle at 22% 24%, rgba(255, 255, 255, 0.22), transparent 16%),
-    linear-gradient(128deg, transparent 0 44%, rgba(255, 255, 255, 0.16) 50%, transparent 60% 100%);
-  opacity: 0.55;
-}
-
-body[data-page="patient"] .bonus-popup__content {
-  position: relative;
-  z-index: 1;
-  padding: 0;
+    inset 0 -22px 40px rgba(0, 0, 0, 0.16),
+    0 18px 38px rgba(0, 11, 18, 0.22);
 }
 
 body[data-page="patient"] .bonus-popup__card-layout {
   display: grid;
-  grid-template-columns: minmax(94px, 116px) minmax(0, 1fr);
-  align-items: center;
-  gap: 18px;
-  padding-bottom: 18px;
+  justify-items: center;
+  text-align: center;
+  gap: 4px;
+  padding-bottom: 11px;
   border-bottom: 1px solid rgba(191, 228, 234, 0.14);
 }
 
-body[data-page="patient"] .bonus-popup__card-graphic {
-  width: 116px;
-  height: 116px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(191, 228, 234, 0.26);
-  border-radius: 50%;
-  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 18px 30px rgba(0, 11, 18, 0.18);
+body[data-page="patient"] .bonus-popup__coupon {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 10px 10px 16px;
+  border: 1px dashed rgba(191, 228, 234, 0.42);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
 }
 
-body[data-page="patient"] .bonus-popup__card-graphic svg {
-  width: 68px;
-  height: 68px;
+body[data-page="patient"] .bonus-popup__coupon-info {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+body[data-page="patient"] .bonus-popup__coupon-label {
+  color: rgba(191, 228, 234, 0.82);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+body[data-page="patient"] .bonus-popup__coupon-code {
+  color: #ffffff;
+  font-size: 1.34rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  overflow-wrap: anywhere;
+}
+
+body[data-page="patient"] .bonus-popup__coupon-copy {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 15px;
+  border: 1px solid rgba(191, 228, 234, 0.42);
+  border-radius: 13px;
+  background: rgba(191, 228, 234, 0.12);
+  color: #eafafd;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 180ms var(--bonus-ease), transform 180ms var(--bonus-ease);
+}
+
+body[data-page="patient"] .bonus-popup__coupon-copy svg {
+  width: 17px;
+  height: 17px;
+}
+
+body[data-page="patient"] .bonus-popup__coupon-copy:hover {
+  background: rgba(191, 228, 234, 0.22);
+  transform: translateY(-1px);
 }
 
 body[data-page="patient"] .bonus-popup__card-copy {
@@ -3375,51 +2873,51 @@ body[data-page="patient"] .bonus-popup__card-copy {
 }
 
 body[data-page="patient"] .bonus-popup__card-kicker {
-  margin: 0 0 4px;
+  margin: 0 0 2px;
   color: rgba(191, 228, 234, 0.82);
-  font-size: 0.88rem;
-  letter-spacing: 0;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
 }
 
 body[data-page="patient"] .bonus-popup__bonus-value {
   margin: 0;
   color: #ffffff;
-  font-size: clamp(3.2rem, 4.8rem, 4.9rem);
-  line-height: 0.9;
+  font-size: clamp(2.6rem, 8vw, 3rem);
+  line-height: 0.95;
   font-weight: 900;
   text-shadow: 0 18px 34px rgba(0, 11, 18, 0.28);
 }
 
 body[data-page="patient"] .bonus-popup__card-subtitle {
-  margin: 10px 0 0;
+  margin: 6px 0 0;
   color: rgba(245, 251, 251, 0.74);
-  font-size: 1.08rem;
-  line-height: 1.25;
+  font-size: 0.98rem;
+  line-height: 1.3;
 }
 
 body[data-page="patient"] .bonus-popup__card-features {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
 }
 
 body[data-page="patient"] .bonus-popup__feature {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
+  text-align: center;
+  gap: 7px;
+  padding: 0 6px;
   min-width: 0;
-  padding-right: 12px;
 }
 
 body[data-page="patient"] .bonus-popup__feature + .bonus-popup__feature {
   border-left: 1px solid rgba(191, 228, 234, 0.12);
-  padding-left: 12px;
 }
 
 body[data-page="patient"] .bonus-popup__feature-icon {
-  width: 42px;
-  height: 42px;
+  width: 34px;
+  height: 34px;
   flex: 0 0 auto;
   display: grid;
   place-items: center;
@@ -3429,59 +2927,15 @@ body[data-page="patient"] .bonus-popup__feature-icon {
 }
 
 body[data-page="patient"] .bonus-popup__feature-icon svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
 
 body[data-page="patient"] .bonus-popup__feature-text {
   min-width: 0;
   color: #ffffff;
-  font-size: 0.9rem;
-  line-height: 1.25;
-}
-
-body[data-page="patient"] .bonus-popup__info-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 18px 18px 17px;
-  border: 1px solid rgba(191, 228, 234, 0.16);
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.05);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-
-body[data-page="patient"] .bonus-popup__info-icon {
-  width: 54px;
-  height: 54px;
-  flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: rgba(191, 228, 234, 0.14);
-  color: #bfe4ea;
-}
-
-body[data-page="patient"] .bonus-popup__info-icon svg {
-  width: 26px;
-  height: 26px;
-}
-
-body[data-page="patient"] .bonus-popup__info-copy {
-  display: grid;
-  gap: 4px;
-  color: rgba(245, 251, 251, 0.76);
-}
-
-body[data-page="patient"] .bonus-popup__info-copy strong {
-  color: #ffffff;
-  font-size: 1.05rem;
-  line-height: 1.25;
-}
-
-body[data-page="patient"] .bonus-popup__info-copy span {
-  font-size: 0.92rem;
-  line-height: 1.45;
+  font-size: 0.76rem;
+  line-height: 1.2;
 }
 
 body[data-page="patient"] .bonus-popup__actions {
@@ -3492,13 +2946,13 @@ body[data-page="patient"] .bonus-popup__actions {
 
 body[data-page="patient"] .bonus-popup__cta {
   width: 100%;
-  min-height: 74px;
+  min-height: 58px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 0 20px;
+  gap: 14px;
+  padding: 12px 20px;
   border: 1px solid rgba(255, 255, 255, 0.42);
-  border-radius: 20px;
+  border-radius: 18px;
   background: linear-gradient(135deg, #b9e5ef, #7fc4d6);
   color: #0a3042;
   box-shadow: 0 18px 34px rgba(3, 28, 40, 0.28);
@@ -3539,32 +2993,6 @@ body[data-page="patient"] .bonus-popup__cta-arrow {
   font-size: 2.4rem;
   line-height: 1;
   font-weight: 700;
-}
-
-body[data-page="patient"] .bonus-popup__fineprint {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  max-width: 372px;
-  margin: 0 auto;
-  color: rgba(245, 251, 251, 0.76);
-  text-align: left;
-}
-
-body[data-page="patient"] .bonus-popup__fineprint-icon {
-  width: 42px;
-  height: 42px;
-  flex: 0 0 auto;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: rgba(191, 228, 234, 0.12);
-  color: #bfe4ea;
-}
-
-body[data-page="patient"] .bonus-popup__fineprint-icon svg {
-  width: 22px;
-  height: 22px;
 }
 
 @media (max-width: 980px) {
@@ -3676,8 +3104,7 @@ body[data-page="patient"] .bonus-popup__fineprint-icon svg {
   }
 
   body[data-page="patient"] .patient-meta,
-  body[data-page="patient"] .support-grid,
-  body[data-page="patient"] .contact-grid {
+  body[data-page="patient"] .support-grid {
     grid-template-columns: 1fr;
   }
 
@@ -3728,8 +3155,7 @@ body[data-page="patient"] .bonus-popup__fineprint-icon svg {
     width: fit-content;
   }
 
-  body[data-page="patient"] .support-card,
-  body[data-page="patient"] .contact-item {
+  body[data-page="patient"] .support-card {
     padding: 14px;
     box-shadow: none;
   }
@@ -3798,26 +3224,22 @@ body[data-page="patient"] .bonus-popup__fineprint-icon svg {
     max-width: 52%;
   }
 
-  .bonus-popup__scratch-card {
-    height: 150px;
-  }
-
   body[data-page="patient"] .footer {
     padding: 28px 0 34px;
   }
 
   body[data-page="patient"] .footer__logo {
     display: block;
-    width: min(270px, 76vw);
+    width: min(130px, 40vw);
   }
 
   body[data-page="patient"] .bonus-popup__inner {
-    gap: 12px;
-    padding: 18px 14px 16px;
+    gap: 8px;
+    padding: 16px 14px 15px;
   }
 
   body[data-page="patient"] .bonus-popup__brand {
-    width: min(226px, 68vw);
+    width: min(168px, 52vw);
   }
 
   body[data-page="patient"] .bonus-popup__tag {
@@ -3825,36 +3247,17 @@ body[data-page="patient"] .bonus-popup__fineprint-icon svg {
     font-size: 0.66rem;
   }
 
-  body[data-page="patient"] .bonus-popup__scratch-card {
-    min-height: 268px;
-    padding: 16px 14px;
-    border-radius: 24px;
-    box-sizing: border-box;
-    max-width: 100%;
-    overflow: hidden;
-  }
-
   body[data-page="patient"] .bonus-popup__card-layout {
     grid-template-columns: 1fr;
     justify-items: center;
     text-align: center;
-    gap: 8px;
-    padding-bottom: 14px;
+    gap: 6px;
+    padding-bottom: 10px;
     min-width: 0;
   }
 
-  body[data-page="patient"] .bonus-popup__card-graphic {
-    width: 76px;
-    height: 76px;
-  }
-
-  body[data-page="patient"] .bonus-popup__card-graphic svg {
-    width: 48px;
-    height: 48px;
-  }
-
   body[data-page="patient"] .bonus-popup__bonus-value {
-    font-size: 2.72rem;
+    font-size: 2.5rem;
   }
 
   body[data-page="patient"] .bonus-popup__card-subtitle {
@@ -3863,48 +3266,20 @@ body[data-page="patient"] .bonus-popup__fineprint-icon svg {
     overflow-wrap: anywhere;
   }
 
-  body[data-page="patient"] .bonus-popup__card-features {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
   body[data-page="patient"] .bonus-popup__feature {
-    padding: 0;
+    padding: 0 4px;
+    gap: 6px;
   }
 
-  body[data-page="patient"] .bonus-popup__feature + .bonus-popup__feature {
-    border-left: 0;
-    padding-left: 0;
-  }
-
-  body[data-page="patient"] .bonus-popup__info-card {
-    padding: 15px;
-    border-radius: 20px;
-    min-width: 0;
-  }
-
-  body[data-page="patient"] .bonus-popup__info-copy,
-  body[data-page="patient"] .bonus-popup__info-copy strong,
-  body[data-page="patient"] .bonus-popup__info-copy span {
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-
-  body[data-page="patient"] .bonus-popup__info-icon {
-    width: 46px;
-    height: 46px;
+  body[data-page="patient"] .bonus-popup__feature-text {
+    font-size: 0.72rem;
   }
 
   body[data-page="patient"] .bonus-popup__cta {
-    min-height: 64px;
+    min-height: 54px;
     gap: 12px;
-    padding: 0 16px;
+    padding: 10px 16px;
     font-size: 0.86rem;
-  }
-
-  body[data-page="patient"] .bonus-popup__fineprint {
-    max-width: 100%;
-    font-size: 0.88rem;
   }
 
   .preview-root,
@@ -3924,8 +3299,6 @@ body[data-page="patient"] .bonus-popup__fineprint-icon svg {
 
 @media (hover: hover) and (pointer: fine) {
   body[data-page="patient"] .support-card:hover,
-  body[data-page="patient"] .contact-item:hover,
-  body[data-page="patient"] .contact-item:focus-within,
   body[data-page="patient"] .record:hover {
     transform: translateY(-2px);
   }
@@ -3933,27 +3306,12 @@ body[data-page="patient"] .bonus-popup__fineprint-icon svg {
 
 @media (hover: none), (pointer: coarse), (max-width: 720px) {
   body[data-page="patient"] .support-card:hover,
-  body[data-page="patient"] .contact-item:hover,
-  body[data-page="patient"] .contact-item:focus-within,
   body[data-page="patient"] .record:hover {
     transform: none;
   }
 
-  .bonus-popup__brand,
-  .bonus-popup__scratch-card::before,
-  .bonus-popup__scratch-card::after,
-  .bonus-popup__shell,
-  .bonus-popup__motion::before,
-  .bonus-popup__motion::after,
-  .bonus-popup__cover-dot {
+  .bonus-popup__brand {
     animation: none;
   }
 
-  .bonus-popup__motion {
-    opacity: 0.62;
-  }
-
-  .bonus-popup__cover-dot {
-    opacity: 0.72;
-  }
 }

@@ -172,22 +172,6 @@
                           </div>
                           <ul class="note-list" data-profile-notes></ul>
                         </article>
-
-                        <article class="patient-section">
-                          <div class="section__header section__header--tight">
-                            <p class="eyebrow">Links</p>
-                            <h3 class="section__title">Materiais e referências</h3>
-                          </div>
-                          <div class="contact-grid" data-profile-links></div>
-                        </article>
-
-                        <article class="patient-section">
-                          <div class="section__header section__header--tight">
-                            <p class="eyebrow">Contato</p>
-                            <h3 class="section__title">Canal da clínica</h3>
-                          </div>
-                          <div class="contact-grid" data-profile-contact></div>
-                        </article>
                       </div>
                     </div>
                   </div>
@@ -469,22 +453,6 @@
                       </div>
                       <ul class="note-list" data-profile-notes></ul>
                     </article>
-
-                    <article class="patient-section">
-                      <div class="section__header section__header--tight">
-                        <p class="eyebrow">Links</p>
-                        <h3 class="section__title">Materiais e referências</h3>
-                      </div>
-                      <div class="contact-grid" data-profile-links></div>
-                    </article>
-
-                    <article class="patient-section">
-                      <div class="section__header section__header--tight">
-                        <p class="eyebrow">Contato</p>
-                        <h3 class="section__title">Canal da clínica</h3>
-                      </div>
-                      <div class="contact-grid" data-profile-contact></div>
-                    </article>
                   </div>
                 </div>
               </article>
@@ -509,48 +477,101 @@
       data-bonus-popup
       data-bonus-open-delay="3000"
       data-bonus-coupon="EMLYN200"
-      data-bonus-reveal-at="64"
       data-bonus-valid-days="60"
       aria-hidden="true"
     >
       <section class="bonus-popup__dialog" role="dialog" aria-modal="true" aria-labelledby="bonus-popup-title">
         <button class="bonus-popup__close" type="button" data-bonus-close aria-label="Fechar popup">&times;</button>
         <div class="bonus-popup__inner">
-          <img
-            class="bonus-popup__brand"
-            src="/assets/brandbook/emlyn-logo-lockup-blue-transparent.png"
-            alt="Dra. Emlyn Dangui"
-            width="468"
-            height="299"
-            decoding="async"
-          />
+          <h2 class="u-visually-hidden" id="bonus-popup-title">Cashback E-Club de R$ 200</h2>
 
-          <div class="bonus-popup__tag">Condição exclusiva E-Club</div>
-          <h2 class="bonus-popup__title" id="bonus-popup-title">Seu bônus de R$ 200 está disponível</h2>
-          <p class="bonus-popup__subtitle">Ative o cupom para usar no seu próximo cuidado com a Dra. Emlyn.</p>
+          <div class="bonus-popup__brand-row">
+            <img
+              class="bonus-popup__brand"
+              src="/assets/brandbook/emlyn-logo-horizontal-white-transparent.png"
+              alt="Dra. Emlyn Dangui"
+              width="798"
+              height="440"
+              decoding="async"
+              loading="lazy"
+            />
+          </div>
 
-          <div class="bonus-popup__scratch-wrap">
-            <div class="bonus-popup__scratch-card" data-bonus-card>
-              <div class="bonus-popup__content" aria-live="polite">
-                <div>
-                  <div class="bonus-popup__bonus-label">Cupom liberado</div>
-                  <div class="bonus-popup__bonus-value">R$ 200</div>
-                  <div class="bonus-popup__bonus-caption">válido por 60 dias após a ativação</div>
-                </div>
+          <div class="bonus-popup__tag">
+            <span class="bonus-popup__tag-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+                <path d="M12 3.4l2.5 5.1 5.6.8-4 4 .9 5.6-5-2.7-5 2.7.9-5.6-4-4 5.6-.8L12 3.4Z" fill="currentColor" />
+              </svg>
+            </span>
+            <span>Condição exclusiva E-Club</span>
+          </div>
+
+          <div class="bonus-popup__card" data-bonus-card>
+            <div class="bonus-popup__card-layout">
+              <div class="bonus-popup__card-copy">
+                <div class="bonus-popup__card-kicker">CASHBACK</div>
+                <div class="bonus-popup__bonus-value">R$ 200</div>
+                <div class="bonus-popup__card-subtitle">para seu <strong>próximo procedimento</strong></div>
               </div>
-
-              <canvas class="bonus-popup__canvas" data-bonus-canvas aria-label="Área para liberar o cupom"></canvas>
             </div>
+
+            <div class="bonus-popup__card-features" aria-label="Condições do bônus">
+              <div class="bonus-popup__feature">
+                <span class="bonus-popup__feature-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+                    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8" />
+                    <path d="M8.5 12h7M12 8.5v7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                  </svg>
+                </span>
+                <span class="bonus-popup__feature-text">Desconto exclusivo</span>
+              </div>
+              <div class="bonus-popup__feature">
+                <span class="bonus-popup__feature-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+                    <rect x="4.2" y="5.5" width="15.6" height="14" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.8" />
+                    <path d="M4.2 9.5h15.6M8 3.9v3.7M16 3.9v3.7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                  </svg>
+                </span>
+                <span class="bonus-popup__feature-text">Válido por 60 dias</span>
+              </div>
+              <div class="bonus-popup__feature">
+                <span class="bonus-popup__feature-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+                    <path d="M12 4l1.8 4.2L18 10l-4.2 1.8L12 16l-1.8-4.2L6 10l4.2-1.8L12 4Z" fill="currentColor" />
+                    <path d="M18.5 15l.8 1.9L21 17.5l-1.7.6-.8 1.9-.8-1.9-1.7-.6 1.7-.6.8-1.9Z" fill="currentColor" opacity="0.85" />
+                  </svg>
+                </span>
+                <span class="bonus-popup__feature-text">Uso único</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bonus-popup__coupon">
+            <div class="bonus-popup__coupon-info">
+              <span class="bonus-popup__coupon-label">Cupom E-Club</span>
+              <strong class="bonus-popup__coupon-code">EMLYN200</strong>
+            </div>
+            <button class="bonus-popup__coupon-copy" type="button" data-bonus-copy>
+              <svg viewBox="0 0 24 24" role="presentation" focusable="false" aria-hidden="true">
+                <rect x="9" y="9" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
+                <path d="M5 15V6a2 2 0 0 1 2-2h9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+              </svg>
+              <span>Copiar</span>
+            </button>
           </div>
 
           <div class="bonus-popup__actions">
-            <button class="bonus-popup__cta" type="button" data-bonus-redeem disabled>Ativar cupom EMLYN200</button>
-            <div class="bonus-popup__mini-actions">
-              <button class="bonus-popup__mini-button" type="button" data-bonus-copy>Copiar código</button>
-            </div>
+            <button class="bonus-popup__cta" type="button" data-bonus-redeem>
+              <span class="bonus-popup__cta-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="presentation" focusable="false">
+                  <rect x="4.4" y="9.8" width="15.2" height="10" rx="1.8" fill="none" stroke="currentColor" stroke-width="1.9" />
+                  <path d="M4.4 13.2h15.2M12 9.8v10M8.4 7.4c0 1.5.9 2.4 2.8 2.4h.8c0-1.9-.7-3-1.9-3.8-1.1-.7-2.2.1-1.7 1.4Zm7.2 0c0 1.5-.9 2.4-2.8 2.4h-.8c0-1.9.7-3 1.9-3.8 1.1-.7 2.2.1 1.7 1.4Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </span>
+              <span>Ativar meu cashback</span>
+              <span class="bonus-popup__cta-arrow" aria-hidden="true">›</span>
+            </button>
           </div>
-
-          <p class="bonus-popup__fineprint">Cupom <strong>EMLYN200</strong> válido por 60 dias após a ativação. Aplicável a procedimento elegível, conforme agenda e condições da campanha.</p>
         </div>
       </section>
 
