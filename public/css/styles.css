@@ -1349,6 +1349,37 @@ body[data-page="patient"] .page-state.hidden {
   background: var(--accent);
 }
 
+.journey-list {
+  display: grid;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.journey-item {
+  display: grid;
+  gap: 4px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(5, 68, 100, 0.12);
+}
+
+.journey-item:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.journey-item__title {
+  margin: 0;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.journey-item__text {
+  margin: 0;
+  color: var(--muted);
+}
+
 .hidden {
   display: none !important;
 }
@@ -2476,6 +2507,56 @@ body[data-page="patient"] .record--empty {
 
 body[data-page="patient"] .note-list__item {
   border-color: rgba(191, 228, 234, 0.16);
+}
+
+body[data-page="patient"] .journey-item__title {
+  color: #eafafb;
+}
+
+body[data-page="patient"] .journey-item__text {
+  color: var(--patient-text-soft);
+}
+
+body[data-page="patient"] .journey-item {
+  border-color: rgba(191, 228, 234, 0.16);
+}
+
+/* Passado enxuto: visitas anteriores e procedimentos viram lista leve (sem card por item),
+   reservando o card destacado só para "Próximas consultas". */
+body[data-page="patient"] [data-profile-history].record-list,
+body[data-page="patient"] [data-profile-procedures].record-list {
+  gap: 0;
+}
+
+body[data-page="patient"] [data-profile-history] .record,
+body[data-page="patient"] [data-profile-procedures] .record {
+  grid-template-columns: minmax(72px, 96px) minmax(0, 1fr);
+  gap: 12px;
+  padding: 14px 2px;
+  border: 0;
+  border-bottom: 1px solid rgba(191, 228, 234, 0.16);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+
+body[data-page="patient"] [data-profile-history] .record:last-child,
+body[data-page="patient"] [data-profile-procedures] .record:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+body[data-page="patient"] [data-profile-history] .record:hover,
+body[data-page="patient"] [data-profile-procedures] .record:hover {
+  transform: none;
+  border-color: rgba(191, 228, 234, 0.16);
+  background: none;
+  box-shadow: none;
+}
+
+body[data-page="patient"] [data-profile-history] .record__tag,
+body[data-page="patient"] [data-profile-procedures] .record__tag {
+  display: none;
 }
 
 body[data-page="patient"] .footer {

@@ -18,6 +18,10 @@ const REPEATER_FIELDS = {
     { key: "detail", label: "Detalhe", placeholder: "Checagem do que mudou." },
     { key: "status", label: "Status", placeholder: "Concluído" }
   ],
+  careJourney: [
+    { key: "title", label: "Serviço", placeholder: "Toxina botulínica" },
+    { key: "detail", label: "Descrição", placeholder: "Aplicação sugerida para o próximo ciclo." }
+  ],
   contact: [
     { key: "label", label: "Rótulo", placeholder: "Canal" },
     { key: "value", label: "Valor", placeholder: "WhatsApp oficial da clínica" }
@@ -81,6 +85,7 @@ function blankPatientProfile() {
     visits: [],
     procedures: [],
     notes: [],
+    careJourney: [],
     contact: [],
     links: []
   };
@@ -209,10 +214,7 @@ function getPreviewProfile(form) {
     appointments: collectRepeater(form.querySelector('[data-repeater="appointments"]')),
     visits: collectRepeater(form.querySelector('[data-repeater="visits"]')),
     procedures: collectRepeater(form.querySelector('[data-repeater="procedures"]')),
-    notes: getField(form, "notes")
-      .split(/\n+/)
-      .map((line) => line.trim())
-      .filter(Boolean),
+    careJourney: collectRepeater(form.querySelector('[data-repeater="careJourney"]')),
     contact: collectRepeater(form.querySelector('[data-repeater="contact"]')),
     links: collectRepeater(form.querySelector('[data-repeater="links"]')),
     is_archived: getField(form, "status") === "Página arquivada"
@@ -278,10 +280,8 @@ function buildPatientPayload(form, currentPatient = {}) {
       appointments: collectRepeater(form.querySelector('[data-repeater="appointments"]')),
       visits: collectRepeater(form.querySelector('[data-repeater="visits"]')),
       procedures: collectRepeater(form.querySelector('[data-repeater="procedures"]')),
-      notes: getField(form, "notes")
-        .split(/\n+/)
-        .map((line) => line.trim())
-        .filter(Boolean),
+      notes: window.EClub.ensureArray(currentPatient?.profile?.notes),
+      careJourney: collectRepeater(form.querySelector('[data-repeater="careJourney"]')),
       contact: collectRepeater(form.querySelector('[data-repeater="contact"]')),
       links: collectRepeater(form.querySelector('[data-repeater="links"]'))
     }
@@ -300,11 +300,11 @@ function populateForm(form, patient) {
   setField(form, "focus", profile.focus || "Agenda, revisões e orientações da paciente.");
   setField(form, "nextSession", profile.nextSession || "");
   setField(form, "lastReview", profile.lastReview || "");
-  setField(form, "notes", window.EClub.ensureArray(profile.notes).join("\n"));
 
   renderRepeater(form.querySelector('[data-repeater="appointments"]'), "appointments", profile.appointments);
   renderRepeater(form.querySelector('[data-repeater="visits"]'), "visits", profile.visits);
   renderRepeater(form.querySelector('[data-repeater="procedures"]'), "procedures", profile.procedures);
+  renderRepeater(form.querySelector('[data-repeater="careJourney"]'), "careJourney", profile.careJourney);
   renderRepeater(form.querySelector('[data-repeater="contact"]'), "contact", profile.contact);
   renderRepeater(form.querySelector('[data-repeater="links"]'), "links", profile.links);
 

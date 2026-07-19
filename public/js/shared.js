@@ -175,6 +175,18 @@
             "O link público pode ser copiado no painel da Dra. Emlyn.",
             "O conteúdo fica totalmente em português."
           ],
+      careJourney: demo
+        ? [
+            {
+              title: "Protocolo de skincare",
+              detail: "Rotina personalizada para manter os resultados em casa."
+            },
+            {
+              title: "Toxina botulínica",
+              detail: "Aplicação sugerida para o próximo ciclo com o seu cashback."
+            }
+          ]
+        : [],
       contact: [
         { label: "Canal", value: "WhatsApp oficial da clínica" },
         { label: "Cidade", value: "Itajaí - SC" },
@@ -206,6 +218,7 @@
       visits: ensureArray(source.visits),
       procedures: ensureArray(source.procedures),
       notes: ensureArray(source.notes),
+      careJourney: ensureArray(source.careJourney),
       contact: ensureArray(source.contact),
       links: ensureArray(source.links)
     };
@@ -386,6 +399,18 @@
       data.notes,
       (item) => `<li class="note-list__item">${escapeHtml(item)}</li>`,
       "Sem observações cadastradas"
+    );
+
+    renderList(
+      scope,
+      "[data-profile-journey]",
+      data.careJourney,
+      (item) => `
+        <li class="journey-item">
+          <p class="journey-item__title">${escapeHtml(item.title)}</p>
+          <p class="journey-item__text">${escapeHtml(item.detail)}</p>
+        </li>`,
+      "Em breve, serviços selecionados para você"
     );
 
     return data;

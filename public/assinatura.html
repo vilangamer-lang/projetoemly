@@ -93,52 +93,51 @@
           <div class="container dashboard">
             <article class="patient-section patient-section--timeline" data-reveal>
               <div class="section__header section__header--tight">
-                <p class="eyebrow">Linha do tempo</p>
-                <h2 class="section__title">Agenda e histórico</h2>
-                <p class="section__lede">Os próximos passos vêm primeiro, seguidos pela evolução recente.</p>
+                <p class="eyebrow">Agenda</p>
+                <h2 class="section__title">Próximas consultas</h2>
+                <p class="section__lede">Os próximos passos vêm primeiro para você acompanhar de perto.</p>
               </div>
 
-              <div class="timeline-stack">
-                <section class="timeline-block">
-                  <div class="timeline-block__head">
-                    <h3 class="timeline-block__title">Próximas consultas</h3>
-                    <span class="timeline-block__meta" data-profile-appointments-count>0 consultas</span>
-                  </div>
-                  <ul class="record-list" data-profile-appointments data-reveal-list></ul>
-                </section>
-
-                <section class="timeline-block">
-                  <div class="timeline-block__head">
-                    <h3 class="timeline-block__title">Visitas anteriores</h3>
-                    <span class="timeline-block__meta" data-profile-visits-count>0 visitas</span>
-                  </div>
-                  <ul class="record-list" data-profile-history data-reveal-list></ul>
-                </section>
+              <div class="timeline-block">
+                <div class="timeline-block__head">
+                  <span class="timeline-block__meta" data-profile-appointments-count>0 consultas</span>
+                </div>
+                <ul class="record-list" data-profile-appointments data-reveal-list></ul>
               </div>
             </article>
 
             <div class="dashboard__split dashboard__split--secondary">
               <article class="patient-section" data-reveal>
                 <div class="section__header section__header--tight">
-                  <p class="eyebrow">Procedimentos</p>
+                  <p class="eyebrow">Histórico</p>
                   <h2 class="section__title">O que já foi feito</h2>
-                  <p class="section__lede">A leitura clínica fica em sequência, sem ruído visual.</p>
                 </div>
-                <ul class="record-list" data-profile-procedures data-reveal-list></ul>
+
+                <div class="timeline-stack">
+                  <section class="timeline-block">
+                    <div class="timeline-block__head">
+                      <h3 class="timeline-block__title">Procedimentos</h3>
+                    </div>
+                    <ul class="record-list" data-profile-procedures data-reveal-list></ul>
+                  </section>
+
+                  <section class="timeline-block">
+                    <div class="timeline-block__head">
+                      <h3 class="timeline-block__title">Visitas anteriores</h3>
+                      <span class="timeline-block__meta" data-profile-visits-count>0 visitas</span>
+                    </div>
+                    <ul class="record-list" data-profile-history data-reveal-list></ul>
+                  </section>
+                </div>
               </article>
 
               <article class="patient-section patient-section--support" data-reveal>
                 <div class="section__header section__header--tight">
-                  <p class="eyebrow">Apoio</p>
-                  <h2 class="section__title">Observações</h2>
-                  <p class="section__lede">Notas e orientações registradas para você.</p>
+                  <p class="eyebrow">Para você</p>
+                  <h2 class="section__title">Sua jornada de cuidados</h2>
+                  <p class="section__lede">Serviços selecionados para aproveitar seu cashback.</p>
                 </div>
-                <div class="support-grid">
-                  <article class="support-card">
-                    <h3 class="support-card__title">Observações</h3>
-                    <ul class="note-list" data-profile-notes data-reveal-list></ul>
-                  </article>
-                </div>
+                <ul class="journey-list" data-profile-journey data-reveal-list></ul>
               </article>
             </div>
           </div>

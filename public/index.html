@@ -349,10 +349,14 @@
                   </section>
 
                   <section class="form-section">
-                    <label class="field field--full">
-                      <span>Observações</span>
-                      <textarea rows="4" data-field="notes" placeholder="Uma observação por linha"></textarea>
-                    </label>
+                    <div class="form-section__head">
+                      <div>
+                        <p class="feature__kicker">Para você</p>
+                        <h3>Sua jornada de cuidados</h3>
+                      </div>
+                      <button class="button" type="button" data-add-row="careJourney">Adicionar linha</button>
+                    </div>
+                    <div class="repeater" data-repeater="careJourney"></div>
                   </section>
 
                   <div class="form-actions">
@@ -448,10 +452,10 @@
 
                     <article class="patient-section">
                       <div class="section__header section__header--tight">
-                        <p class="eyebrow">Observações</p>
-                        <h3 class="section__title">Leitura rápida</h3>
+                        <p class="eyebrow">Para você</p>
+                        <h3 class="section__title">Sua jornada de cuidados</h3>
                       </div>
-                      <ul class="note-list" data-profile-notes></ul>
+                      <ul class="journey-list" data-profile-journey></ul>
                     </article>
                   </div>
                 </div>
